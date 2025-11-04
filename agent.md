@@ -117,9 +117,9 @@ private:
 - **Private members**: Arrays/pointers not directly accessible
 
 ### Naming Convention
-- Class: `Cities1`, `Depot`, `Terminal`
+- Class: `Cities`, `Terminal`
 - One .h file per node type
-- See `examples/cities1.h` for complete reference
+- See `examples/cities.h` for complete reference
 
 ## Learning
 Record translation challenges in `learning_log.md`. Update this file when new patterns emerge.
