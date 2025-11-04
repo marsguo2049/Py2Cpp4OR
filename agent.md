@@ -101,12 +101,12 @@ model.add(IloMinimize(env, objective_expr));
 
 ### Header File Structure
 ```cpp
-#ifndef NODETYPE_H
-#define NODETYPE_H
+#ifndef NODE_H
+#define NODE_H
 
-class NodeType {
+class Node {
 public:
-    NodeType() {}  // Empty constructor
+    Node() {}
     
     void init(int size1, int size2, int size3) {
         // Allocate 1D arrays
@@ -128,12 +128,18 @@ public:
         }
     }
     
-    // Getters
+    // Getters for scalars (single-index attributes)
+    int getCapacity() { return capacity; }
+    double getVarCost() { return varCost; }
+    
+    // Getters for arrays (multi-index attributes)
     double get1D(int i) { return array1D[i]; }
     double get2D(int i, int j) { return array2D[i][j]; }
     double get3D(int i, int j, int k) { return array3D[i][j][k]; }
     
     // Setters
+    void setCapacity(int v) { capacity = v; }
+    void setVarCost(double v) { varCost = v; }
     void set1D(int i, double val) { array1D[i] = val; }
     void set2D(int i, int j, double val) { array2D[i][j] = val; }
     void set3D(int i, int j, int k, double val) { array3D[i][j][k] = val; }
@@ -155,23 +161,39 @@ public:
         delete[] array3D;
     }
     
-    ~NodeType() {}
+    ~Node() {}
 
 private:
-    double* array1D;    // 1D array
-    double** array2D;   // 2D array
-    double*** array3D;  // 3D array
+    // Single-index: scalar members (attributes of this node only)
+    int capacity = 0;
+    double varCost = 0.0;
+    
+    // Multi-index: array members (relationships to other entities)
+    double* array1D;    // to destinations
+    double** array2D;   // indexed by [destination][attribute]
+    double*** array3D;  // indexed by [dest1][dest2][attribute]
 };
 
 #endif
 ```
 
-### Key Components
-- **Header guard**: `#ifndef/#define/#endif` prevents duplicate inclusion
-- **init()**: Dynamic memory allocation based on problem size
-- **Getters/Setters**: Controlled access to private data
-- **delArr()**: Manual cleanup to avoid memory leaks
-- **Private members**: Arrays/pointers not directly accessible
+### Member Design Rules
+
+**Array index represents node identity**:
+```cpp
+node = new Node[numNodes];  // node[i] is the i-th node
+node[i].getCapacity();      // i identifies which node
+```
+
+**Scalar vs Array members**:
+- **Scalar**: Attribute belongs to this node only (single-index parameter)
+  - Example: `capacity`, `varCost`
+  - Usage: `node[i].getCapacity()`
+- **Array**: Relationship to other entities (multi-index parameter)
+  - Example: `trCostToDestination[d]`, `demandMatrix[period][scenario]`
+  - Usage: `node[i].getTrCost(d)`
+
+**Rule**: If parameter depends only on current entity → scalar member. If it relates to destinations/periods/scenarios → array member.
 
 ### Naming Convention
 - Class: `Cities`, `Terminal`
