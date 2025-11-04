@@ -17,10 +17,46 @@ Translate Python optimization models (pyomo/gurobipy) to clean, minimal C++ code
 - `function.cpp`: Model building logic
 - **Forbidden**: .exe, g++, Makefile, CMakeLists.txt (unless explicitly requested)
 
-### Data I/O
-- **Preferred**: `readline()` approach for data files
-- **Avoid**: Direct numpy/pandas equivalents (Eigen, Armadillo)
-- Read data line-by-line for simplicity
+### Data I/O Requirements
+
+**Reading Pattern - txt**:
+```cpp
+ifstream file;
+file.open("data\\data.txt");
+std::getline(file, line);  // Skip comment lines
+file >> temp;              // Read value
+```
+
+**Reading Pattern - csv**:
+```cpp
+ifstream file;
+file.open("data\\centers.csv");
+for (int i = 0; i < numRows; i++) {
+    for (int j = 0; j < numCols; j++) {
+        file >> value;
+        if (j < numCols - 1) file >> tempchar;  // Skip comma
+    }
+}
+file.close();
+```
+
+**Validation Checklist**:
+- [ ] No matrix libraries (Eigen, Armadillo) for file reading
+- [ ] Derived values computed in code, not read from files
+- [ ] Comments preserved in txt using `std::getline()`
+- [ ] CSV delimiters handled with `tempchar`
+
+**Code Pattern**:
+```cpp
+// Wrong: Read pre-calculated value
+file >> fixedCost;
+
+// Right: Read base, compute in code
+file >> capacity;
+hub[i].setfixedCost(capacity * 0.25);
+```
+
+See `USER_GUIDE.md` for data preparation specifications.
 
 ### Translation Rules
 **Variables**:
