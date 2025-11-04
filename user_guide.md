@@ -24,6 +24,7 @@ Files should contain only raw input data. All calculations belong in C++ code.
 - Reduces error-prone data preprocessing
 
 **Wrong**: Pre-calculate `fixedCost = capacity * 0.25` in Excel, store both
+
 **Right**: Store only `capacity`, compute `fixedCost` in C++
 
 ## File Organization
