@@ -52,7 +52,7 @@ This repository stores refined knowledge and serves as daily progress tracker. L
 
 ## License
 
-MIT
+Apache-2.0
 
 # Py2Cpp4OR
 
@@ -108,4 +108,4 @@ agent.md → 执行 → reasoning_traces/ → 反馈 → learning_log.md → 更
 
 ## 开源协议
 
-MIT
+Apache-2.0
