@@ -33,5 +33,4 @@ Files should contain only raw input data. All calculations belong in C++ code.
 data/
 ├── data.txt        # Main parameters
 ├── demand.csv     # Demand matrices
-└── label.csv       # Scenario data
 ```
