@@ -72,38 +72,59 @@ class NodeType {
 public:
     NodeType() {}  // Empty constructor
     
-    void init(int size1, int size2) {
+    void init(int size1, int size2, int size3) {
         // Allocate 1D arrays
-        costArray = new double[size1];
+        array1D = new double[size1];
         
         // Allocate 2D arrays
-        demandMatrix = new double*[size1];
+        array2D = new double*[size1];
         for (int i = 0; i < size1; i++) {
-            demandMatrix[i] = new double[size2];
+            array2D[i] = new double[size2];
+        }
+        
+        // Allocate 3D arrays
+        array3D = new double**[size1];
+        for (int i = 0; i < size1; i++) {
+            array3D[i] = new double*[size2];
+            for (int j = 0; j < size2; j++) {
+                array3D[i][j] = new double[size3];
+            }
         }
     }
     
     // Getters
-    double getCost(int i) { return costArray[i]; }
-    double getDemand(int i, int j) { return demandMatrix[i][j]; }
+    double get1D(int i) { return array1D[i]; }
+    double get2D(int i, int j) { return array2D[i][j]; }
+    double get3D(int i, int j, int k) { return array3D[i][j][k]; }
     
     // Setters
-    void setCost(int i, double val) { costArray[i] = val; }
-    void setDemand(int i, int j, double val) { demandMatrix[i][j] = val; }
+    void set1D(int i, double val) { array1D[i] = val; }
+    void set2D(int i, int j, double val) { array2D[i][j] = val; }
+    void set3D(int i, int j, int k, double val) { array3D[i][j][k] = val; }
     
-    void delArr(int size1) {
-        delete[] costArray;
+    void delArr(int size1, int size2) {
+        delete[] array1D;
+        
         for (int i = 0; i < size1; i++) {
-            delete[] demandMatrix[i];
+            delete[] array2D[i];
         }
-        delete[] demandMatrix;
+        delete[] array2D;
+        
+        for (int i = 0; i < size1; i++) {
+            for (int j = 0; j < size2; j++) {
+                delete[] array3D[i][j];
+            }
+            delete[] array3D[i];
+        }
+        delete[] array3D;
     }
     
     ~NodeType() {}
 
 private:
-    double* costArray;      // 1D: costs to destinations
-    double** demandMatrix;  // 2D: demand[period][scenario]
+    double* array1D;    // 1D array
+    double** array2D;   // 2D array
+    double*** array3D;  // 3D array
 };
 
 #endif
