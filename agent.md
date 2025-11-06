@@ -200,5 +200,47 @@ node[i].getCapacity();      // i identifies which node
 - One .h file per node type
 - See `examples/cities.h` for complete reference
 
+## Agent Collaboration: Working with Classie
+
+### When to Use Classie
+Before starting any C++ translation, first use the **classie** agent to:
+1. **Analyze Python model structure** and identify entity classes
+2. **Generate classes_report.md** with detailed class specifications
+3. **Create header files** (.h) for all identified classes
+4. **Validate class design** against project standards
+
+### Workflow Integration
+```mermaid
+graph LR
+    A[Python Model] --> B[classie Analysis]
+    B --> C[classes_report.md]
+    C --> D[Header Files .h]
+    D --> E[C++ Translation]
+    E --> F[Implementation .cpp]
+```
+
+### Classie's Capabilities
+- **Entity Identification**: Automatically detects nodes, facilities, resources
+- **Class Design**: Separates scalar vs array members following design principles
+- **Header Generation**: Creates complete .h files with memory management
+- **Validation**: Ensures compliance with project coding standards
+
+### How to Use Classie
+1. **First Step**: Always run classie on new Python models
+2. **Review Results**: Check `classes_report.md` for accuracy
+3. **Request Headers**: Ask classie to generate .h files for each class
+4. **Proceed with Translation**: Use generated headers as foundation
+
+### Integration Benefits
+- **Consistency**: All classes follow same design patterns
+- **Efficiency**: No manual class design required
+- **Quality**: Automated validation ensures standards compliance
+- **Learning**: Classie improves from each analysis
+
 ## Learning
 Record translation challenges in `learning_log.md`. Update this file when new patterns emerge.
+
+## Reference Examples
+- `cities1.h` - Validated header file template (approved by classie)
+- `classes_report.md` - Complete class analysis for stochastic model
+- See `.claude/agents/classie.md` for detailed classie capabilities
