@@ -56,29 +56,102 @@ agent.md → 执行 | Execute → reasoning_traces/ → 反馈 | Feedback → le
 ├── agent.md              # Agent操作规范（LLM上下文） | Agent operational rules (LLM context)
 ├── learning_log.md       # 经验总结与差距分析 | Experience summary & gap analysis
 ├── reasoning_traces/     # 精炼的决策日志 | Distilled decision logs
+├── classes_report.md     # 类结构分析与报告 | Class structure analysis & reports
 ├── USER_GUIDE.md         # 用户数据准备指南 | User data preparation guide
+├── CLAUDE.md             # Claude Code使用指导 | Claude Code usage guidance
+├── .claude/agents/       # 专门化Agent配置 | Specialized agent configurations
+│   └── classie.md        # 类分析专家Agent | Class analysis expert agent
 ├── examples/             # Python-C++翻译对照 | Python-C++ translation pairs
-└── tests/                # 验证案例 | Validation cases
+├── tests/                # 验证案例 | Validation cases
+└── *.h                   # 生成的C++头文件 | Generated C++ header files
 ```
 
 ## 当前进展 | Current Status
 
-✅ 模型翻译完成 | Model translation complete (pyomo → C++ in function.cpp)  
-🔄 优化数据I/O方式 | Refining data I/O approach (numpy/pandas → readline)  
-🔄 简化代码结构 | Simplifying code structure (removing unnecessary complexity)
+### ✅ 完成的里程碑 | Completed Milestones
+
+**智能Agent系统 | Intelligent Agent System:**
+- ✅ **classie Agent**: 专门化类分析专家，自动识别Python模型中的实体类
+- ✅ **classes_report.md**: 完整的类结构分析报告，包含5个核心类定义
+- ✅ **Agent协作框架**: agent.md与classie.md的无缝协作机制
+
+**C++类设计 | C++ Class Design:**
+- ✅ **Cities类**: 已验证的cities1.h模板，包含完整的内存管理
+- ✅ **Term类**: 新生成的Term.h，用于传统内陆终端
+- ✅ **设计哲学**: 标量vs数组成员的正确分离，数组索引代表节点身份
+
+**随机优化模型分析 | Stochastic Model Analysis:**
+- ✅ **models_stochastic.py**: 完整分析多周期、多场景随机优化模型
+- ✅ **5个核心类**: Cities, Term, DryEx, DryNew, Sea的完整属性定义
+- ✅ **命名优化**: 简化类名（Customer→Cities, ConventionalTerminal→Term等）
+
+### 🔄 进行中的工作 | In Progress
+
+- 🔄 **剩余头文件生成**: DryEx.h, DryNew.h, Sea.h的生成
+- 🔄 **模型集成**: 将生成的类整合到完整的C++优化模型中
+
+### 🎯 下一步目标 | Next Steps
+
+- 🎯 **完整翻译**: 基于生成的头文件完成完整的Python→C++翻译
+- 🎯 **性能验证**: 测试C++代码的性能提升（目标：<1秒 vs Python 100秒+）
+- 🎯 **Agent学习能力**: 验证classie从新模型中学习并改进的能力
 
 ## 工作流程 | Workflow
 
-1. **执行 | Execute**: Agent读取`agent.md`并翻译模型 | Agent reads `agent.md` and translates models
-2. **记录 | Record**: 在`reasoning_traces/`中记录关键决策 | Log key decisions in `reasoning_traces/`
-3. **学习 | Learn**: 提炼模式到`learning_log.md` | Extract patterns into `learning_log.md`
-4. **演进 | Evolve**: 基于经验完善`agent.md` | Refine `agent.md` based on experience
+### 增强的协作流程 | Enhanced Collaborative Workflow
+
+```mermaid
+graph LR
+    A[Python模型] --> B[classie分析]
+    B --> C[classes_report.md]
+    C --> D[.h头文件生成]
+    D --> E[C++完整翻译]
+    E --> F[.cpp实现]
+    F --> G[验证与优化]
+    G --> H[学习与改进]
+    H --> A
+```
+
+1. **模型分析 | Model Analysis**: classie agent分析Python模型，识别实体类
+2. **报告生成 | Report Generation**: 生成详细的classes_report.md分析报告
+3. **头文件创建 | Header Creation**: 基于分析自动生成完整的.h文件
+4. **C++翻译 | C++ Translation**: 使用生成的头文件完成完整的C++实现
+5. **记录与学习 | Record & Learn**: 记录关键决策，提炼最佳实践
+6. **持续改进 | Continuous Improvement**: 基于反馈优化agent能力
+
+### Agent协作机制 | Agent Collaboration
+
+- **主Agent (agent.md)**: 负责整体翻译策略和C++代码生成
+- **classie Agent**: 专门负责类结构分析和头文件生成
+- **协作接口**: 通过classes_report.md和标准化的.h模板实现无缝集成
 
 ## 设计理念 | Philosophy
 
 本仓库存储精炼的知识，作为每日进展追踪工具。本地开发（Cursor/Claude Code/Codex）处理实验性工作；GitHub保存提炼的最佳实践。
 
 This repository stores refined knowledge and serves as daily progress tracker. Local development (Cursor/Claude Code/Codex) handles experimentation; GitHub contains the distilled best practices.
+
+### 核心创新 | Core Innovation
+
+**智能Agent协作系统 | Intelligent Agent Collaboration System:**
+- **专门化分工**: classie专注类分析，主agent专注翻译实现
+- **结构化学习**: 通过classes_report.md积累模型识别经验
+- **模板化生成**: 标准化的.h文件模板确保代码一致性
+- **迭代改进**: 从每个翻译案例中学习并优化能力
+
+**类设计哲学 | Class Design Philosophy:**
+- **实体中心**: 每个类代表优化模型中的逻辑实体
+- **标量vs数组**: 标量成员属于节点自身，数组成员表示与其他节点的关系
+- **索引即身份**: 数组索引代表目标节点的身份
+- **内存安全**: 完整的init/delArr内存管理模式
+
+## 技术栈 | Technology Stack
+
+- **分析引擎**: Claude Code + classie Agent
+- **建模框架**: Pyomo → C++ (手工优化)
+- **数据I/O**: ifstream readline方法（无外部依赖）
+- **内存管理**: 手动new/delete（符合项目标准）
+- **编译器**: 标准C++11兼容
 
 ## 开源协议 | License
 
