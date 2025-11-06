@@ -71,30 +71,30 @@ agent.md → 执行 | Execute → reasoning_traces/ → 反馈 | Feedback → le
 ### ✅ 完成的里程碑 | Completed Milestones
 
 **智能Agent系统 | Intelligent Agent System:**
-- ✅ **classie Agent**: 专门化类分析专家，自动识别Python模型中的实体类
-- ✅ **classes_report.md**: 完整的类结构分析报告，包含5个核心类定义
-- ✅ **Agent协作框架**: agent.md与classie.md的无缝协作机制
+- ✅ **专门化Agent**: 部署类分析专家agent，自动识别Python模型中的实体类
+- ✅ **结构化分析**: 建立完整的类结构分析报告系统
+- ✅ **Agent协作**: 实现主agent与专门化agent的无缝协作框架
 
-**C++类设计 | C++ Class Design:**
-- ✅ **Cities类**: 已验证的cities1.h模板，包含完整的内存管理
-- ✅ **Term类**: 新生成的Term.h，用于传统内陆终端
-- ✅ **设计哲学**: 标量vs数组成员的正确分离，数组索引代表节点身份
+**C++代码生成 | C++ Code Generation:**
+- ✅ **头文件模板**: 验证标准化的.h文件模板，包含完整内存管理
+- ✅ **类设计哲学**: 确立标量vs数组成员分离的设计原则
+- ✅ **自动生成**: 实现基于分析的C++头文件自动生成
 
-**随机优化模型分析 | Stochastic Model Analysis:**
-- ✅ **models_stochastic.py**: 完整分析多周期、多场景随机优化模型
-- ✅ **5个核心类**: Cities, Term, DryEx, DryNew, Sea的完整属性定义
-- ✅ **命名优化**: 简化类名（Customer→Cities, ConventionalTerminal→Term等）
+**模型分析能力 | Model Analysis Capability:**
+- ✅ **复杂模型支持**: 成功分析多周期、多场景的随机优化模型
+- ✅ **实体识别**: 自动识别和分类优化模型中的实体类型
+- ✅ **命名优化**: 建立简洁一致的类命名规范
 
 ### 🔄 进行中的工作 | In Progress
 
-- 🔄 **剩余头文件生成**: DryEx.h, DryNew.h, Sea.h的生成
-- 🔄 **模型集成**: 将生成的类整合到完整的C++优化模型中
+- 🔄 **头文件完善**: 完成所有识别类的头文件生成
+- 🔄 **模型集成**: 将生成的类结构整合到完整的C++优化模型中
 
 ### 🎯 下一步目标 | Next Steps
 
-- 🎯 **完整翻译**: 基于生成的头文件完成完整的Python→C++翻译
-- 🎯 **性能验证**: 测试C++代码的性能提升（目标：<1秒 vs Python 100秒+）
-- 🎯 **Agent学习能力**: 验证classie从新模型中学习并改进的能力
+- 🎯 **端到端翻译**: 实现Python模型到C++代码的完整自动化翻译
+- 🎯 **性能验证**: 验证C++代码的性能提升效果
+- 🎯 **学习能力**: 持续优化agent的模型识别和代码生成能力
 
 ## 工作流程 | Workflow
 
