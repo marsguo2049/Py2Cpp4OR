@@ -16,35 +16,56 @@ Initial AI-generated C++ code is overly complex, difficult to review, and potent
 
 ## 项目目标 | Purpose
 
-建立可控的翻译框架 Create a controlled translation framework that:
-- 生成简洁的C++代码（仅.cpp和.h文件） Generates clean, minimal C++ code (only .cpp and .h files)
-- 保持代码可读性，便于人工审查 Maintains code readability for human review
-- 从反馈中学习，持续优化翻译质量 Learns from feedback to improve translation quality
-- 连接Python原型开发与C++生产部署 Bridges Python prototyping and C++ production
+建立可控的翻译框架 | Create a controlled translation framework that:
+- 生成简洁的C++代码（仅.cpp和.h文件） | Generates clean, minimal C++ code (only .cpp and .h files)
+- 保持代码可读性，便于人工审查 | Maintains code readability for human review
+- 从反馈中学习，持续优化翻译质量 | Learns from feedback to improve translation quality
+- 连接Python原型开发与C++生产部署 | Bridges Python prototyping and C++ production
+
+## Python → C++ 关键差异 | Key Python → C++ Differences
+
+### 数据导入：readline方法 | Data I/O: readline Approach
+**Python**: 高级库（pandas/numpy） | High-level libraries (pandas/numpy)  
+**C++**: 原生`ifstream`逐行读取 | Raw `ifstream` line-by-line reading
+
+**为什么用"笨"方法 | Why "simple" approach**:
+- 透明可控，便于调试 | Transparent and debuggable
+- 无外部依赖（避免Eigen/Armadillo） | No external dependencies
+- 符合导师代码风格 | Matches supervisor's coding style
+- 完全控制数据解析 | Full control over data parsing
+
+### 头文件（.h） | Header Files (.h)
+**Python**: 类定义和实现一起 | Class definition and implementation together  
+**C++**: 声明(.h)和实现(.cpp)分离 | Separated declaration (.h) and implementation (.cpp)
+
+**分离的目的 | Purpose of separation**:
+- 接口文档 | Interface documentation
+- 编译效率（修改.cpp不需重编译依赖者） | Compilation efficiency
+- 通过header guard避免重复定义 | Prevent duplicate definitions
 
 ## 架构设计 | Architecture
 
 **迭代学习框架 | Iterative Learning Framework:**
 ```
 agent.md → 执行 | Execute → reasoning_traces/ → 反馈 | Feedback → learning_log.md → 更新 | Update agent.md
-
 ```
 
 **仓库结构 | Repository Structure:**
 ```
 .
-├── agent.md              # Agent操作规范（LLM上下文） Agent operational rules (LLM context)
-├── learning_log.md       # 经验总结与差距分析 Experience summary & gap analysis
-├── reasoning_traces/     # 精炼的决策日志 Distilled decision logs
-├── examples/             # Python-C++翻译对照 Python-C++ translation pairs
-└── tests/                # 验证案例 Validation cases
+├── agent.md              # Agent操作规范（LLM上下文） | Agent operational rules (LLM context)
+├── learning_log.md       # 经验总结与差距分析 | Experience summary & gap analysis
+├── reasoning_traces/     # 精炼的决策日志 | Distilled decision logs
+├── USER_GUIDE.md         # 用户数据准备指南 | User data preparation guide
+├── examples/             # Python-C++翻译对照 | Python-C++ translation pairs
+└── tests/                # 验证案例 | Validation cases
 ```
 
 ## 当前进展 | Current Status
 
 ✅ 模型翻译完成 | Model translation complete (pyomo → C++ in function.cpp)  
 🔄 优化数据I/O方式 | Refining data I/O approach (numpy/pandas → readline)  
-🔄 简化代码结构（移除不必要的复杂性） | Simplifying code structure (removing unnecessary complexity)
+🔄 简化代码结构 | Simplifying code structure (removing unnecessary complexity)
 
 ## 工作流程 | Workflow
 
@@ -61,4 +82,4 @@ This repository stores refined knowledge and serves as daily progress tracker. L
 
 ## 开源协议 | License
 
-Apache-2.0
+MIT
