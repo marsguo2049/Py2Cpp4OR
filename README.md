@@ -82,4 +82,4 @@ This repository stores refined knowledge and serves as daily progress tracker. L
 
 ## 开源协议 | License
 
-MIT
+Apache-2.0 license
