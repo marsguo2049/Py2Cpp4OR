@@ -104,27 +104,41 @@ class ClassName {
 public:
     ClassName() {}
 
+    // ===== MUST FOLLOW THIS STRUCTURE =====
+    // 1. Public methods only - ALL member variables go in private section
+    // 2. Constructor first, then methods grouped by functionality
+    // 3. init() method if arrays needed, followed by array getters/setters
+    // 4. delArr() method if arrays allocated, then destructor
+    // 5. Private section contains ALL member variables
+
     // Scalar getters/setters - simple and direct
     int getCapacity() { return capacity; }
     void setCapacity(int newdata) { capacity = newdata; }
     double getVarCost() { return varCost; }
     void setVarCost(double newdata) { varCost = newdata; }
 
-    // Array allocation - only if needed
+    // Array allocation - only if needed (followed by array methods)
     void init(int size1, int size2) {
         array1 = new double[size1];
         array2 = new double[size2];
     }
 
-    // Array accessors - consistent naming
+    // Array accessors - consistent naming (grouped together)
     double getArray1(int index) { return array1[index]; }
     void setArray1(int index, double newdata) { array1[index] = newdata; }
     double getArray2(int index) { return array2[index]; }
     void setArray2(int index, double newdata) { array2[index] = newdata; }
 
+    // Memory cleanup - only if arrays allocated
+    void delArr() {
+        delete[] array1;
+        delete[] array2;
+    }
+
     ~ClassName() {}
 
 private:
+    // ALL member variables must be private - never declare members in public section
     // Related variables grouped on single lines
     int capacity, minNumCtr;
     double varCost, openCost, fixCost;
@@ -174,6 +188,17 @@ void init(int numDry) {
 // ✅ No pointer initialization (practical approach)
 double *railMaintCostToDry, *trCostToDry, *emsTrToDry;
 ```
+
+#### **Critical Class Structure Rules**:
+
+1. **Encapsulation Principle**: ALL member variables must be private - never declare data members in public section
+2. **Public Interface Only**: Only methods (getters/setters/init/delArr) should be public
+3. **Method Organization**:
+   - Constructor first
+   - Scalar getters/setters grouped by functionality
+   - Array allocation (init) followed immediately by array accessors
+   - Memory cleanup (delArr) before destructor
+4. **Private Section**: Contains ALL data members, organized by logical groups
 
 #### **Key Principles**:
 
