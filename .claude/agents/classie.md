@@ -94,7 +94,7 @@ objects[i].getMemberName();
 
 ### Header File Generation Capability
 
-**You can now generate complete .h files** based on your analysis and the validated patterns from `cities1.h`. When requested, generate header files following this template:
+**Generate complete .h files based on analysis from `classes_report.md` and following actual project patterns. Use practical, proven coding style over theoretical perfection.**
 
 ```cpp
 #ifndef CLASSNAME_H
@@ -102,55 +102,96 @@ objects[i].getMemberName();
 
 class ClassName {
 public:
-    ClassName() {}  // Default constructor
+    ClassName() {}
 
-    // Memory allocation method
-    void init(int size1, int size2, ...) {
-        // Allocate 1D arrays: member = new double[size];
-        // Allocate 2D arrays: member = new double*[size1];
-        //                    for (int i = 0; i < size1; i++) {
-        //                        member[i] = new double[size2];
-        //                    }
+    // Scalar getters/setters - simple and direct
+    int getCapacity() { return capacity; }
+    void setCapacity(int newdata) { capacity = newdata; }
+    double getVarCost() { return varCost; }
+    void setVarCost(double newdata) { varCost = newdata; }
+
+    // Array allocation - only if needed
+    void init(int size1, int size2) {
+        array1 = new double[size1];
+        array2 = new double[size2];
     }
 
-    // Getter methods for all members
-    double getMemberName(int index) { return memberName[index]; }
-    double get2DMember(int index1, int index2) { return member2D[index1][index2]; }
+    // Array accessors - consistent naming
+    double getArray1(int index) { return array1[index]; }
+    void setArray1(int index, double newdata) { array1[index] = newdata; }
+    double getArray2(int index) { return array2[index]; }
+    void setArray2(int index, double newdata) { array2[index] = newdata; }
 
-    // Setter methods for all members
-    void setMemberName(int index, double value) { memberName[index] = value; }
-    void set2DMember(int index1, int index2, double value) { member2D[index1][index2] = value; }
-
-    // Memory cleanup method
-    void delArr(int size1, int size2, ...) {
-        // Clean up 2D arrays first (reverse order)
-        for (int i = 0; i < size1; i++) {
-            delete[] member2D[i];
-        }
-        delete[] member2D;
-        // Clean up 1D arrays
-        delete[] member1D;
-    }
-
-    ~ClassName() {}  // Destructor
+    ~ClassName() {}
 
 private:
-    // Data members - all pointers for dynamic allocation
-    double* member1D;
-    double** member2D;
-    // Single-line pointer declarations preferred
+    // Related variables grouped on single lines
+    int capacity, minNumCtr;
+    double varCost, openCost, fixCost;
+    double *array1, *array2;  // Pointers without initialization
 };
 
 #endif
 ```
 
-#### Key Generation Rules:
-1. **Header Guards**: Always use `#ifndef CLASSNAME_H`
-2. **Memory Management**: Include both `init()` and `delArr()` methods
-3. **Accessors**: Generate getters/setters for ALL members using `get`/`set` + `memberName` pattern
-4. **Naming**: camelCase for methods, descriptive names for members
-5. **Cleanup Order**: Reverse of allocation (2D inner arrays first)
-6. **Private Data**: All member variables as private pointers
+#### **Code Style Standards**:
+
+**1. Type Selection**:
+- **Capacity/Count**: Use `int` (e.g., `capacity`, `minNumCtr`)
+- **Costs/Emissions**: Use `double` (e.g., `varCost`, `emsTrToSP`)
+- **Indices**: Use `int` (e.g., `index`, not `idx`)
+
+**2. Naming Conventions**:
+```cpp
+// ✅ Practical naming - concise but clear
+double varCost;           // not variableCost
+double emsTrToSP;         // not emissionToSeaport
+double railMaintCostToDry; // specific and descriptive
+
+// ✅ Method naming - consistent camelCase
+int getcapacityTerm() { return capacityTerm; }
+double gettrCostToSP() { return trCostToSP; }
+double gettrCostToDry(int index) { return trCostToDry[index]; }
+```
+
+**3. Variable Organization**:
+```cpp
+// ✅ Group related variables on single lines
+int capacityTerm, minNumCtr;                    // Capacity-related
+double openCost, fixCost, penCostUnMet, varCost; // Cost-related
+double trCostToSP, emsTrToSP;                   // Transportation-related
+```
+
+**4. Memory Management**:
+```cpp
+// ✅ Only include init() if dynamic arrays needed
+void init(int numDry) {
+    railMaintCostToDry = new double[numDry];
+    trCostToDry = new double[numDry];
+    emsTrToDry = new double[numDry];
+}
+
+// ✅ No pointer initialization (practical approach)
+double *railMaintCostToDry, *trCostToDry, *emsTrToDry;
+```
+
+#### **Key Principles**:
+
+1. **Pragmatism over Theory**: Use practical patterns from working code
+2. **Consistency over Dogma**: Consistent internal style matters more
+3. **Simplicity over Complexity**: Avoid over-engineering
+4. **Readability over Perfection**: Code should be immediately understandable
+5. **Context-Appropriate**: Adapt patterns to specific use cases
+
+#### **When to Include Dynamic Memory**:
+- Only classes with array members need `init()` method
+- Classes with only scalar members don't need dynamic allocation
+- No `delArr()` method needed if cleanup is handled elsewhere
+
+#### **Method Generation Rules**:
+- **Getters**: `get + MemberName()` - no const for practicality
+- **Setters**: `set + MemberName(newdata)` - consistent parameter naming
+- **Array Access**: `get + MemberName(index)` / `set + MemberName(index, newdata)`
 
 ### File Management
 - Always update `classes_report.md` with your analysis
@@ -166,3 +207,11 @@ Before recommending a class, verify:
 - [ ] Not just global parameters
 - [ ] Follows project's class design philosophy
 - [ ] Array indexes represent destination nodes where applicable
+
+### Workflow Integration
+1. **Analyze Python Model**: Identify entity classes and their attributes
+2. **Update classes_report.md**: Document findings with structured format
+3. **Generate Header Files**: Create .h files based on analysis using practical patterns
+4. **Validate Implementation**: Ensure code follows project conventions and compiles correctly
+
+Remember: Generate practical, maintainable code that matches the existing project style rather than pursuing theoretical perfection.
