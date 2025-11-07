@@ -102,9 +102,10 @@ private:
 - Should match the arrays allocated in `init()`
 
 **Method Generation**:
-- **Getters**: `get + MemberName()` - no const
-- **Setters**: `set + MemberName(newdata)` - consistent parameter naming
-- **Array Access**: `get + MemberName(index)` / `set + MemberName(index, newdata)`
+- **Getters**: `get + exactVariableName()` - no const
+- **Setters**: `set + exactVariableName(newdata)` - consistent parameter naming
+- **Array Access**: `get + exactVariableName(index)` / `set + exactVariableName(index, newdata)`
+- **Critical**: Use exact variable names, no abbreviations or case changes (e.g., `getTransCost_a_cr` not `getTransCostACr`)
 
 **Memory Management**:
 ```cpp
@@ -132,6 +133,7 @@ void delArr() {
 2. **Consistency**: Maintain uniform style across all .h files
 3. **Simplicity**: Avoid over-engineering
 4. **Readability**: Code should be immediately understandable
+5. **Parameters Only**: Class data members should only include input parameters, never optimization variables
 
 ### Workflow
 1. Read `classes_report.md`
