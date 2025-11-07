@@ -45,6 +45,20 @@ global_discount = 0.15  # Single parameter
    - Pure functions
    - Temporary variables
 
+### 🔥 CRITICAL: Symbol Mapping Requirement
+
+**ALL class members MUST include exact Python model symbols:**
+
+```cpp
+class Customer {
+    double demand_b_ctw;           // Python: b_ctw(c,t,w)
+    double* transCost_a_cr;        // Python: a_cr(c,r) - dimension: NOR
+    double* emission_epsilon_cr;   // Python: epsilon_cr(c,r) - dimension: NOR
+};
+```
+
+**Format**: `cppName_pythonSymbol` - Easy verification against original model
+
 ### Output Format
 
 Update `classes_report.md` with this structure:
@@ -60,10 +74,10 @@ Source: [Python filename]
 ## ClassName
 
 **Scalar Members**:
-- `memberName` (int/double) - description
+- `memberName_pythonSymbol` (int/double) - description
 
 **Array Members**:
-- `memberName[arraySize]` (double) - description to destinations/entities
+- `memberName_pythonSymbol` (double*) - description to destinations/entities, dimension noted in class docs
 
 **Rationale**: Brief explanation of why these belong together
 
@@ -90,6 +104,7 @@ Before finalizing analysis:
 - [ ] Attributes share common indexing patterns
 - [ ] Separated entity classes from global parameters
 - [ ] Array indexes represent node/destination identities
+- [ ] Array names are concise (don't include index set names like [NOR])
 - [ ] Decision variables properly associated with entities
 
 ### Workflow
