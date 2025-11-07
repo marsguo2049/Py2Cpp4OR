@@ -105,7 +105,7 @@ Before finalizing analysis:
 - [ ] Separated entity classes from global parameters
 - [ ] Array indexes represent node/destination identities
 - [ ] Array names are concise (don't include index set names like [NOR])
-- [ ] Decision variables properly associated with entities
+- [ ] Only input parameters, no decision variables
 
 ### Workflow
 1. Read Python model file(s)
