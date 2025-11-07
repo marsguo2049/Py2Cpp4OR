@@ -200,42 +200,109 @@ node[i].getCapacity();      // i identifies which node
 - One .h file per node type
 - See `examples/cities.h` for complete reference
 
-## Agent Collaboration: Working with Classie
+## Agent Collaboration: Working with Classie & Heady
 
-### When to Use Classie
-Before starting any C++ translation, first use the **classie** agent to:
-1. **Analyze Python model structure** and identify entity classes
-2. **Generate classes_report.md** with detailed class specifications
-3. **Create header files** (.h) for all identified classes
-4. **Validate class design** against project standards
+### When to Use Agents
+Before starting any C++ translation, use the **specialized agent team**:
 
-### Workflow Integration
+1. **Classie Agent**: Analyze Python model structure and identify entity classes
+2. **Heady Agent**: Generate header files (.h) based on Classie's analysis
+3. **Validation**: Review results against project standards
+
+### Specialized Agent Specifications
+
+**Classie Agent Configuration:**
+- **Name**: classie (Analyst)
+- **Model**: Sonnet
+- **Color**: purple
+- **Core Function**: Entity identification and pattern recognition
+- **Input**: Python optimization code (pyomo/gurobipy)
+- **Output**: `classes_report.md` structured analysis
+
+**Classie Analysis Capabilities:**
+- **Entity Pattern Recognition**: Identifies arrays sharing indices, DataFrames, dictionaries
+- **Logical Entity Detection**: Focuses on nodes, facilities, resources, scenarios
+- **Attribute Grouping**: Related parameters that belong to same entity type
+- **Validation Rules**: Each class must have ≥2 related attributes, represent logical entity types
+- **Output Structure**: Detailed markdown report with scalar/array member classification
+
+**Heady Agent Configuration:**
+- **Name**: heady (Code Generator)
+- **Model**: Sonnet
+- **Color**: blue
+- **Core Function**: C++ header file generation
+- **Input**: `classes_report.md` from Classie
+- **Output**: Clean, compilable .h files
+
+**Heady Code Generation Standards:**
+- **Type Selection**: Capacity/Count → int, Costs/Emissions → double, Indices → int
+- **Naming Conventions**: Concise but clear (varCost, emsTrToSP, railMaintCostToDry)
+- **Variable Organization**: Group related variables with initialization
+- **Memory Management**: Pointer initialization to nullptr, complete init/delArr patterns
+- **Method Generation**: get/set patterns with consistent parameter naming
+
+### Enhanced Workflow Integration
 ```mermaid
 graph LR
-    A[Python Model] --> B[classie Analysis]
+    A[Python Model] --> B[Classie Analysis]
     B --> C[classes_report.md]
-    C --> D[Header Files .h]
-    D --> E[C++ Translation]
-    E --> F[Implementation .cpp]
+    C --> D[Heady Code Generation]
+    D --> E[Header Files .h]
+    E --> F[C++ Translation]
+    F --> G[Implementation .cpp]
 ```
 
-### Classie's Capabilities
-- **Entity Identification**: Automatically detects nodes, facilities, resources
-- **Class Design**: Separates scalar vs array members following design principles
-- **Header Generation**: Creates complete .h files with memory management
-- **Validation**: Ensures compliance with project coding standards
+### How to Use the Agent Team
 
-### How to Use Classie
-1. **First Step**: Always run classie on new Python models
-2. **Review Results**: Check `classes_report.md` for accuracy
-3. **Request Headers**: Ask classie to generate .h files for each class
-4. **Proceed with Translation**: Use generated headers as foundation
+**Step 1: Analysis Phase (Classie)**
+- Provide Python model files to Classie agent
+- Classie identifies entity types and their attributes
+- Generates structured `classes_report.md` with:
+  - Scalar vs Array member classification
+  - Rationale for class groupings
+  - Global parameters (excluded from classes)
+  - Design notes for Heady
+
+**Step 2: Generation Phase (Heady)**
+- Heady reads `classes_report.md`
+- Applies project coding standards and templates
+- Generates clean .h files with:
+  - Proper header guards
+  - Initialized scalar members (int=0, double=0.0)
+  - Safe pointer initialization (nullptr)
+  - Complete getter/setter patterns
+  - Memory management methods (init/delArr)
+
+**Step 3: Integration Phase**
+- Review generated header files
+- Validate against Classie's analysis
+- Proceed with C++ implementation using generated classes
+- Feed back lessons learned for agent improvement
+
+### Agent Communication Interface
+
+**Classie → Heady Interface:**
+```markdown
+## ClassName
+**Scalar Members**: memberName (type) - description
+**Array Members**: memberName[arraySize] (type) - description to destinations
+**Rationale**: Why these belong together
+```
+
+**Validation Checklists:**
+- **Classie**: Entity types identified, ≥2 attributes per class, proper indexing patterns
+- **Heady**: Header guards, member initialization, getter/setter completeness, memory safety
+
+### Quality Assurance Loop
+- If Heady generates incorrect code → Refine Classie's analysis specifications
+- If Classie misses entities → Improve pattern recognition rules
+- Continuous improvement through structured feedback
 
 ### Integration Benefits
-- **Consistency**: All classes follow same design patterns
+- **Consistency**: All classes follow same design patterns and coding standards
 - **Efficiency**: No manual class design required
 - **Quality**: Automated validation ensures standards compliance
-- **Learning**: Classie improves from each analysis
+- **Learning**: Both agents improve from each translation case
 
 ## Learning
 Record translation challenges in `learning_log.md`. Update this file when new patterns emerge.
