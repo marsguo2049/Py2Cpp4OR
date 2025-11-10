@@ -4,10 +4,10 @@
 Translate Python optimization models (pyomo/gurobipy) to clean, minimal C++ code.
 
 ## Core Principles
-- **Simplicity over complexity**: Generate only .cpp and .h files
-- **Readability first**: Code must be human-reviewable
-- **Minimal dependencies**: Avoid unnecessary libraries
-- **Consistent style**: Follow supervisor's coding patterns
+- **Simplicity**: Generate only .cpp and .h files, no build systems
+- **Readability**: Code must be human-reviewable for non-AI programmers
+- **Minimal dependencies**: Raw `ifstream` approach, no matrix libraries
+- **Base data only**: Store base values in files, compute derived values in C++
 
 ## Code Structure Requirements
 
@@ -19,15 +19,16 @@ Translate Python optimization models (pyomo/gurobipy) to clean, minimal C++ code
 
 ### Data I/O Requirements
 
-**Reading Pattern - txt**:
+**TXT Files** - Configuration parameters with comments:
 ```cpp
 ifstream file;
 file.open("data\\data.txt");
 std::getline(file, line);  // Skip comment lines
 file >> temp;              // Read value
+file >> tempDouble; param.setValue(tempDouble / 100);  // Apply scaling
 ```
 
-**Reading Pattern - csv**:
+**CSV Files** - Tabular data without comments:
 ```cpp
 ifstream file;
 file.open("data\\centers.csv");
@@ -37,26 +38,14 @@ for (int i = 0; i < numRows; i++) {
         if (j < numCols - 1) file >> tempchar;  // Skip comma
     }
 }
-file.close();
 ```
 
-**Validation Checklist**:
-- [ ] No matrix libraries (Eigen, Armadillo) for file reading
-- [ ] Derived values computed in code, not read from files
-- [ ] Comments preserved in txt using `std::getline()`
-- [ ] CSV delimiters handled with `tempchar`
-
-**Code Pattern**:
-```cpp
-// Wrong: Read pre-calculated value
-file >> fixedCost;
-
-// Right: Read base, compute in code
-file >> capacity;
-hub[i].setfixedCost(capacity * 0.25);
-```
-
-See `USER_GUIDE.md` for data preparation specifications.
+**Critical Rules**:
+- Base values only → files, derived values → C++ calculations
+- Use `std::getline()` for comment handling in TXT files
+- Use `tempchar` for comma skipping in CSV files
+- Windows paths: `"data\\filename.ext"`
+- No external libraries (Eigen, Armadillo) for file reading
 
 ### Translation Rules
 **Variables**:
@@ -78,18 +67,29 @@ model.add(constraints);
 model.add(IloMinimize(env, objective_expr));
 ```
 
+## Agent Collaboration Workflow
+
+**Use specialized agents before any C++ translation**:
+
+1. **Paramy** (orange): Analyze Python files for hard-coded values → `parameter_report.md`
+2. **Classie** (purple): Identify entity classes and attributes → `classes_report.md`
+3. **Heady** (blue): Generate header files based on Classie's analysis → `.h files`
+4. **Ready** (blue): Generate data reading functions following project patterns
+5. **Implementation**: Complete C++ translation using generated components
+
 ## Workflow
-1. Analyze Python model structure
-2. Generate minimal C++ equivalent
-3. Validate compilation and logic
-4. Document non-obvious mappings
+1. Analyze Python model with Paramy + Classie
+2. Generate headers with Heady, data reading with Ready
+3. Complete C++ implementation
+4. Validate compilation and logic
+5. Document non-obvious mappings
 
 ## Output Checklist
 - [ ] Only .cpp/.h files generated
 - [ ] Code compiles without warnings
 - [ ] Readable by non-AI programmer
-- [ ] Data I/O uses readline pattern
-- [ ] No unnecessary libraries imported
+- [ ] Data I/O uses project patterns
+- [ ] No external libraries imported
 
 ## C++ Class Design for Nodes
 
@@ -97,7 +97,7 @@ model.add(IloMinimize(env, objective_expr));
 - Encapsulate node attributes (costs, emissions, demand)
 - Type safety (different node types don't mix)
 - Uniform getter/setter pattern
-- Easy to extend with new node types
+- Manual memory management with init/delArr methods
 
 ### Header File Structure
 ```cpp
@@ -196,118 +196,67 @@ node[i].getCapacity();      // i identifies which node
 **Rule**: If parameter depends only on current entity → scalar member. If it relates to destinations/periods/scenarios → array member.
 
 ### Naming Convention
-- Class: `Cities`, `Terminal`
-- One .h file per node type
-- See `examples/cities.h` for complete reference
 
-## Agent Collaboration: Working with Classie & Heady
+**IMPORTANT**: Always reference `user_preference.md` for specific naming requirements before generating code.
 
-### When to Use Agents
-Before starting any C++ translation, use the **specialized agent team**:
+## Specialized Agent Specifications
 
-1. **Classie Agent**: Analyze Python model structure and identify entity classes
-2. **Heady Agent**: Generate header files (.h) based on Classie's analysis
-3. **Validation**: Review results against project standards
+**Paramy** (orange) - Parameter Analysis:
+- Identifies hard-coded values and external data sources in Python files
+- Recommends file organization strategy (TXT vs CSV)
+- **DOES NOT** list specific parameter values, only categories and strategy
+- Output: `parameter_report.md`
 
-### Specialized Agent Specifications
+**Classie** (purple) - Entity Analysis:
+- Identifies entity classes and their attributes from Python model structure
+- Groups related parameters into logical classes (≥2 attributes per class)
+- Classifies scalar vs array members
+- Output: `classes_report.md`
 
-**Classie Agent Configuration:**
-- **Name**: classie (Analyst)
-- **Model**: Sonnet
-- **Color**: purple
-- **Core Function**: Entity identification and pattern recognition
-- **Input**: Python optimization code (pyomo/gurobipy)
-- **Output**: `classes_report.md` structured analysis
+**Heady** (blue) - Header Generation:
+- Generates .h files based on Classie's analysis
+- Applies user preference naming conventions
+- Creates complete getter/setter patterns with memory management
 
-**Classie Analysis Capabilities:**
-- **Entity Pattern Recognition**: Identifies arrays sharing indices, DataFrames, dictionaries
-- **Logical Entity Detection**: Focuses on nodes, facilities, resources, scenarios
-- **Attribute Grouping**: Related parameters that belong to same entity type
-- **Validation Rules**: Each class must have ≥2 related attributes, represent logical entity types
-- **Output Structure**: Detailed markdown report with scalar/array member classification
+**Ready** (blue) - Data Reading Functions:
+- Generates `getData()` functions following project patterns
+- Applies TXT/CSV reading patterns consistently
+- Ensures derived values computed in code, not read from files
 
-**Heady Agent Configuration:**
-- **Name**: heady (Code Generator)
-- **Model**: Sonnet
-- **Color**: blue
-- **Core Function**: C++ header file generation
-- **Input**: `classes_report.md` from Classie
-- **Output**: Clean, compilable .h files
-
-**Heady Code Generation Standards:**
-- **Type Selection**: Capacity/Count → int, Costs/Emissions → double, Indices → int
-- **Naming Conventions**: Concise but clear (varCost, emsTrToSP, railMaintCostToDry)
-- **Variable Organization**: Group related variables with initialization
-- **Memory Management**: Pointer initialization to nullptr, complete init/delArr patterns
-- **Method Generation**: get/set patterns with consistent parameter naming
-
-### Enhanced Workflow Integration
+## Enhanced Workflow Integration
 ```mermaid
 graph LR
-    A[Python Model] --> B[Classie Analysis]
-    B --> C[classes_report.md]
-    C --> D[Heady Code Generation]
-    D --> E[Header Files .h]
-    E --> F[C++ Translation]
-    F --> G[Implementation .cpp]
+    A[Python Model] --> B[Paramy Analysis]
+    A --> C[Classie Analysis]
+    B --> D[parameter_report.md]
+    C --> E[classes_report.md]
+    E --> F[Heady Headers]
+    F --> G[Ready Functions]
+    D --> G
+    G --> H[C++ Implementation]
 ```
 
-### How to Use the Agent Team
+### Agent Communication Flow
+- **Paramy**: Python file → Data organization strategy (no specific values)
+- **Classie**: Python structure → Entity class definitions with scalar/array classification
+- **Heady**: Classie report → Clean .h files with proper memory management
+- **Ready**: Data requirements → getData() functions following project patterns
 
-**Step 1: Analysis Phase (Classie)**
-- Provide Python model files to Classie agent
-- Classie identifies entity types and their attributes
-- Generates structured `classes_report.md` with:
-  - Scalar vs Array member classification
-  - Rationale for class groupings
-  - Global parameters (excluded from classes)
-  - Design notes for Heady
+### Quality Assurance
+- **Paramy**: Strategy-focused, no value disclosure
+- **Classie**: ≥2 attributes per class, logical entity types
+- **Heady**: Header guards, complete getters/setters, memory safety
+- **Ready**: Base data only, derived calculations in code
 
-**Step 2: Generation Phase (Heady)**
-- Heady reads `classes_report.md`
-- Applies project coding standards and templates
-- Generates clean .h files with:
-  - Proper header guards
-  - Initialized scalar members (int=0, double=0.0)
-  - Safe pointer initialization (nullptr)
-  - Complete getter/setter patterns
-  - Memory management methods (init/delArr)
-
-**Step 3: Integration Phase**
-- Review generated header files
-- Validate against Classie's analysis
-- Proceed with C++ implementation using generated classes
-- Feed back lessons learned for agent improvement
-
-### Agent Communication Interface
-
-**Classie → Heady Interface:**
-```markdown
-## ClassName
-**Scalar Members**: memberName (type) - description
-**Array Members**: memberName[arraySize] (type) - description to destinations
-**Rationale**: Why these belong together
-```
-
-**Validation Checklists:**
-- **Classie**: Entity types identified, ≥2 attributes per class, proper indexing patterns
-- **Heady**: Header guards, member initialization, getter/setter completeness, memory safety
-
-### Quality Assurance Loop
-- If Heady generates incorrect code → Refine Classie's analysis specifications
-- If Classie misses entities → Improve pattern recognition rules
-- Continuous improvement through structured feedback
-
-### Integration Benefits
-- **Consistency**: All classes follow same design patterns and coding standards
-- **Efficiency**: No manual class design required
-- **Quality**: Automated validation ensures standards compliance
-- **Learning**: Both agents improve from each translation case
-
-## Learning
+## Learning & References
 Record translation challenges in `learning_log.md`. Update this file when new patterns emerge.
 
-## Reference Examples
-- `cities1.h` - Validated header file template (approved by classie)
-- `classes_report.md` - Complete class analysis for stochastic model
-- See `.claude/agents/classie.md` for detailed classie capabilities
+**Key Project Insights**:
+- C++ performance dramatically outperforms Python (<1s vs 100s+ for model building)
+- Base data storage + derived calculations in code = optimal approach
+- Consistent file reading patterns ensure maintainability
+
+**File Organization Strategy**:
+- **TXT files**: Configuration parameters with comments, mixed data types
+- **CSV files**: Tabular data, scenario matrices, large numerical datasets
+- **Derived values**: Always compute in C++ code, never store in files
