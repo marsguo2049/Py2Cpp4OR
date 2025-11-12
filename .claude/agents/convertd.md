@@ -274,21 +274,40 @@ Generate `reports\data_conversion_report.md` with:
 
 ### Dynamic Data Extraction Script Requirements
 
-**Script Name**: `extract_data.py` (in project root)
+**Script Name**: `reports\extract_data.py`
 
 **Script Responsibilities**:
 - **Import paramodel.py as module** to access runtime variables
 - **Extract live variable values** (NOC, NOR, NODe, etc.) directly from Python execution
 - **Use paramodel.get_parameters()** to access Excel-loaded parameters dynamically
 - **Copy loaded DataFrames** (df_dis, df_detail_cost, df_demand) to CSV format
-- **Generate data.txt** with actual runtime values and clear parameter labels
+- **Generate unified data.txt** with ALL parameters (network + Excel + computed values)
 - **Save all files** to `Data_new\` folder with C++-compatible formatting
 
 **Critical Features**:
 - **NO hard-coded values** - everything extracted from live Python execution
+- **Single-file approach** - ALL parameters in unified data.txt (no separate parameters.txt)
+- **Preserve original index systems** - don't force all data to use same identifiers
+- **Analyze source data structure** - understand existing identifier systems before conversion
+- **Maintain semantic consistency** - preserve business logic and relationships
 - **Error handling** for missing parameters with graceful fallbacks
 - **Data validation** to ensure extraction completeness
 - **Clear documentation** of data sources and extraction methods
+
+**General Data Structure Handling Principles:**
+
+### 1. Index System Analysis
+Before converting any data, analyze the source index systems:
+- **Identify identifier patterns** (e.g., C0, R0, De0, Dn0)
+- **Understand semantic relationships** between identifiers
+- **Map to optimization model variables** where appropriate
+- **Preserve meaningful distinctions** between entity types
+
+### 2. Consistency Guidelines
+- **Same concept, same identifiers**: Network nodes should use consistent IDs across files
+- **Different concepts, different identifiers**: Don't force unrelated data to use same ID system
+- **Semantic preservation**: Maintain the business meaning of data relationships
+- **C++ optimization**: Consider how identifiers will be used in arrays and data structures
 
 **Script Structure Template**:
 ```python
@@ -301,10 +320,21 @@ def extract_from_paramodel():
     sys.path.insert(0, '.')
     import paramodel as pm
 
+    # Analyze data structure before conversion
+    analyze_source_data_structure(pm)
+
     # Extract network variables: pm.NOC, pm.NOR, etc.
     # Extract Excel parameters: pm.get_parameters('a_cj')
-    # Copy DataFrames: pm.df_dis.to_csv(), etc.
+    # Convert DataFrames with appropriate index handling:
+    # - Preserve existing identifier systems where appropriate
+    # - Convert to symbolic IDs where beneficial for C++ implementation
     # Generate data.txt with live values
+
+def analyze_source_data_structure(pm):
+    """Understand existing identifier systems and relationships"""
+    # Examine df_dis, df_detail_cost, df_demand structure
+    # Identify index patterns and semantic meaning
+    # Plan conversion strategy based on data type and purpose
 
 def main():
     print("Extracting live data from paramodel.py...")
