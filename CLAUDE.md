@@ -86,10 +86,18 @@ Node classes encapsulate optimization model entities:
 4. Validate compilation and logic
 5. Document non-obvious mappings in `reasoning_traces/`
 
+### Performance and Debugging Workflow
+1. **Development Phase**: Enable detailed debug output for validation
+2. **Testing Phase**: Use CPU timing to identify performance bottlenecks
+3. **Production Phase**: Comment out debug sections, keep timing summaries
+4. **Optimization Phase**: Adjust parameters via configuration files
+5. **Documentation**: Record performance insights in `learning_log.md`
+
 ### Learning and Updates
 - Record translation challenges in `learning_log.md`
 - Update `agent.md` when new patterns emerge
 - Store refined decision logs in `reasoning_traces/`
+- Document performance optimization strategies
 
 ## Data Preparation Guidelines
 
@@ -106,6 +114,10 @@ Node classes encapsulate optimization model entities:
 - [ ] Only .cpp/.h files generated
 - [ ] Code compiles without warnings
 - [ ] Readable by non-AI programmer
+- [ ] **Performance monitoring included** (CPU timing with `clock()`)
+- [ ] **Debug output controllable** (commented sections for production)
+- [ ] **Flexible parameter support** (configuration-driven scalability)
+- [ ] **Memory management complete** (proper init/delArr patterns)
 
 ## Important Constraints
 
@@ -120,5 +132,30 @@ The `learning_log.md` contains validated patterns and performance insights:
 - C++ dramatically outperforms Python (<1s vs 100s for model building)
 - AI-generated code tends toward unnecessary complexity
 - Readline approach is preferred for transparency and debuggability
+- **Performance monitoring is essential for optimization**
+- **Flexible parameter control enables scalable testing**
+- **Modular debug control supports development-to-production workflow**
 
 Refer to this log when encountering translation challenges or needing performance guidance.
+
+## Performance and Debugging Best Practices
+
+### CPU Timing Implementation
+```cpp
+#include <ctime>
+clock_t startTime = clock();
+// ... code section ...
+clock_t endTime = clock();
+double executionTime = double(endTime - startTime) / CLOCKS_PER_SEC;
+```
+
+### Debug Control Strategy
+- **Development**: Keep detailed debug output active
+- **Testing**: Add performance timing measurements
+- **Production**: Comment out debug, keep timing summaries
+- **Documentation**: Record performance characteristics
+
+### Configuration-Driven Flexibility
+- Use central configuration files (data.txt) for parameter control
+- Support variable data sizes for scalability testing
+- Enable different execution modes without code changes
