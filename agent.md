@@ -73,16 +73,17 @@ model.add(IloMinimize(env, objective_expr));
 
 1. **Paramy** (orange): Analyze Python files for hard-coded values → `parameter_report.md`
 2. **Classie** (purple): Identify entity classes and attributes → `classes_report.md`
-3. **Heady** (blue): Generate header files based on Classie's analysis → `.h files`
-4. **Ready** (blue): Generate data reading functions following project patterns
-5. **Implementation**: Complete C++ translation using generated components
+3. **Converter** (purple): Convert Python data to C++-compatible formats → `data files`
+4. **Heady** (blue): Generate header files based on Classie's analysis → `.h files`
+5. **Mody** (green): Translate Pyomo models to CPLEX C++ functions → `model.cpp`
+6. **Implementation**: Complete C++ translation using generated components
 
 ## Workflow
 1. Analyze Python model with Paramy + Classie
-2. Generate headers with Heady, data reading with Ready
-3. Complete C++ implementation
-4. Validate compilation and logic
-5. Document non-obvious mappings
+2. Convert data formats with Converter
+3. Generate headers with Heady, model logic with Mody
+4. Complete C++ implementation
+5. Validate compilation and logic
 
 ## Output Checklist
 - [ ] Only .cpp/.h files generated
@@ -90,6 +91,9 @@ model.add(IloMinimize(env, objective_expr));
 - [ ] Readable by non-AI programmer
 - [ ] Data I/O uses project patterns
 - [ ] No external libraries imported
+- [ ] Performance monitoring capabilities included
+- [ ] Debug information controllable via code flags
+- [ ] Flexible parameter support for scalability testing
 
 ## C++ Class Design for Nodes
 
@@ -213,15 +217,22 @@ node[i].getCapacity();      // i identifies which node
 - Classifies scalar vs array members
 - Output: `classes_report.md`
 
+**Converter** (purple) - Data Format Conversion:
+- Analyzes C++ code reading patterns before designing formats
+- Converts Python data to C++-compatible formats (TXT/matrix/CSV)
+- Ensures generated files work with existing `getData()` functions
+- Output: Compatible data files for C++ integration
+
 **Heady** (blue) - Header Generation:
 - Generates .h files based on Classie's analysis
 - Applies user preference naming conventions
 - Creates complete getter/setter patterns with memory management
 
-**Ready** (blue) - Data Reading Functions:
-- Generates `getData()` functions following project patterns
-- Applies TXT/CSV reading patterns consistently
-- Ensures derived values computed in code, not read from files
+**Mody** (green) - Model Translation:
+- Translates Pyomo optimization models to CPLEX C++ functions
+- Applies learned patterns from existing C++ implementations
+- Generates complete model building logic with constraints
+- Output: C++ model functions
 
 ## Enhanced Workflow Integration
 ```mermaid
@@ -239,14 +250,16 @@ graph LR
 ### Agent Communication Flow
 - **Paramy**: Python file → Data organization strategy (no specific values)
 - **Classie**: Python structure → Entity class definitions with scalar/array classification
+- **Converter**: Python + C++ analysis → Compatible data files
 - **Heady**: Classie report → Clean .h files with proper memory management
-- **Ready**: Data requirements → getData() functions following project patterns
+- **Mody**: Pyomo model → CPLEX C++ implementation
 
 ### Quality Assurance
 - **Paramy**: Strategy-focused, no value disclosure
 - **Classie**: ≥2 attributes per class, logical entity types
+- **Converter**: C++ compatibility first, format analysis before design
 - **Heady**: Header guards, complete getters/setters, memory safety
-- **Ready**: Base data only, derived calculations in code
+- **Mody**: Learned patterns applied, complete memory management
 
 ## Learning & References
 Record translation challenges in `learning_log.md`. Update this file when new patterns emerge.
@@ -255,8 +268,20 @@ Record translation challenges in `learning_log.md`. Update this file when new pa
 - C++ performance dramatically outperforms Python (<1s vs 100s+ for model building)
 - Base data storage + derived calculations in code = optimal approach
 - Consistent file reading patterns ensure maintainability
+- **Performance monitoring is essential** for optimization and debugging
+- **Flexible parameter control** enables scalability testing and validation
+- **Controllable debug output** supports both development and production environments
 
 **File Organization Strategy**:
-- **TXT files**: Configuration parameters with comments, mixed data types
+- **TXT files**: Configuration parameters with comments, mixed data types, unified control
 - **CSV files**: Tabular data, scenario matrices, large numerical datasets
 - **Derived values**: Always compute in C++ code, never store in files
+- **Central configuration**: Single configuration file controlling all model dimensions
+- **Flexible data access**: Support for variable scenario/data set sizes
+
+**Performance and Debugging Guidelines**:
+- **Include CPU timing**: Use `clock()` for performance monitoring
+- **Modular debug control**: Comment out debug sections for production
+- **Execution time breakdown**: Track I/O, computation, and optimization separately
+- **Memory safety**: Consistent `init()`/`delArr()` patterns with proper cleanup
+- **Scalability testing**: Design for different data sizes via parameter control
