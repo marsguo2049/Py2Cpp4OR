@@ -77,6 +77,12 @@ agent.md → 执行 | Execute → reasoning_traces/ → 反馈 | Feedback → le
 - ✅ **职责分离**: 分析专注于实体识别，生成专注于代码实现 | Responsibility Separation: Analysis focuses on entity identification, generation focuses on code implementation
 - ✅ **结构化工作流**: 从Python模型到C++头文件的完整自动化流程 | Structured Workflow: Complete automated workflow from Python models to C++ header files
 
+**性能监控和调试系统 | Performance Monitoring & Debugging System:**
+- ✅ **CPU计时功能**: 集成`clock()`计时器，支持详细的性能分析 | CPU Timing: Integrated `clock()` timers supporting detailed performance analysis
+- ✅ **模块化调试控制**: 可注释的debug输出，支持开发到生产的无缝切换 | Modular Debug Control: Commentable debug output enabling seamless development-to-production transition
+- ✅ **执行时间分解**: 分别跟踪I/O、计算和优化阶段的性能 | Execution Time Breakdown: Separate tracking of I/O, computation, and optimization phases
+- ✅ **配置驱动灵活性**: 通过配置文件控制参数，支持可扩展性测试 | Configuration-Driven Flexibility: Parameter control via configuration files supporting scalability testing
+
 **Classie Agent (分析师) | Classie Agent (Analyst):**
 - ✅ **模式识别**: 识别共享索引的数组、DataFrame、字典结构 | Pattern Recognition: Identify arrays sharing indices, DataFrames, dictionary structures
 - ✅ **实体检测**: 自动识别节点、设施、资源、场景等逻辑实体类型 | Entity Detection: Automatically identify logical entity types like nodes, facilities, resources, scenarios
@@ -110,6 +116,7 @@ agent.md → 执行 | Execute → reasoning_traces/ → 反馈 | Feedback → le
 - 🎯 **端到端翻译**: 实现Python模型到C++代码的完整自动化翻译 | End-to-End Translation: Achieve complete automated translation from Python models to C++ code
 - 🎯 **性能验证**: 验证C++代码的性能提升效果 | Performance Validation: Verify performance improvement effects of C++ code
 - 🎯 **学习能力**: 持续优化agent的模型识别和代码生成能力 | Learning Capability: Continuously optimize agents' model recognition and code generation capabilities
+- 🎯 **工具链成熟化**: 将性能监控和调试系统标准化为翻译流程的必备组件 | Toolchain Maturation: Standardize performance monitoring and debugging systems as essential translation workflow components
 
 ## 工作流程 | Workflow
 
@@ -122,17 +129,20 @@ graph LR
     C --> D[.h头文件生成<br/>.h Header Generation]
     D --> E[C++完整翻译<br/>C++ Complete Translation]
     E --> F[.cpp实现<br/>.cpp Implementation]
-    F --> G[验证与优化<br/>Validation & Optimization]
-    G --> H[学习与改进<br/>Learning & Improvement]
-    H --> A
+    F --> G[性能监控集成<br/>Performance Monitoring]
+    G --> H[验证与优化<br/>Validation & Optimization]
+    H --> I[学习与改进<br/>Learning & Improvement]
+    I --> A
 ```
 
 1. **模型分析 | Model Analysis**: classie agent分析Python模型，识别实体类 | classie agent analyzes Python models to identify entity classes
 2. **报告生成 | Report Generation**: 生成详细的classes_report.md分析报告 | Generate detailed classes_report.md analysis reports
 3. **头文件创建 | Header Creation**: 基于分析自动生成完整的.h文件 | Automatically generate complete .h files based on analysis
 4. **C++翻译 | C++ Translation**: 使用生成的头文件完成完整的C++实现 | Use generated headers to complete C++ implementation
-5. **记录与学习 | Record & Learn**: 记录关键决策，提炼最佳实践 | Record key decisions and distill best practices
-6. **持续改进 | Continuous Improvement**: 基于反馈优化agent能力 | Optimize agent capabilities based on feedback
+5. **性能监控集成 | Performance Monitoring**: 集成CPU计时和调试控制功能 | Integrate CPU timing and debug control features
+6. **验证与优化 | Validation & Optimization**: 基于性能分析进行代码优化 | Optimize code based on performance analysis
+7. **记录与学习 | Record & Learn**: 记录关键决策和性能洞察，提炼最佳实践 | Record key decisions and performance insights, distill best practices
+8. **持续改进 | Continuous Improvement**: 基于反馈优化agent能力和工具链 | Optimize agent capabilities and toolchain based on feedback
 
 ### Agent协作机制 | Agent Collaboration
 
