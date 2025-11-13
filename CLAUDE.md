@@ -79,12 +79,55 @@ Node classes encapsulate optimization model entities:
 
 ## Development Workflow
 
-### When Translating Models
-1. Read `agent.md` for current operational rules
-2. Analyze Python model structure (pyomo/gurobipy)
-3. Generate minimal C++ equivalent following patterns
-4. Validate compilation and logic
-5. Document non-obvious mappings in `reasoning_traces/`
+### Specialized Agent-Based Translation Process
+
+**Phase 1: Analysis (Agents: Paramy + Classie)**
+1. **Paramy Analysis**: Analyze Python files for hard-coded values and data sources
+   - Input: Python model files
+   - Output: `reports/parameter_report.md`
+   - Focus: File organization strategy, data source identification
+
+2. **Classie Analysis**: Identify entity classes and attribute relationships
+   - Input: Python model structure
+   - Output: `reports/classes_report.md`
+   - Focus: Entity types, scalar vs array classification
+
+**Phase 2: Data Processing (Agent: Convertd)**
+3. **Convertd Conversion**: Convert Python data structures to C++-compatible formats
+   - Input: `parameter_report.md` + Python data sources
+   - Output: `Data_new/` folder with C++-compatible files
+   - Focus: Dynamic data extraction, universal templates, no hard-coding
+
+**Phase 3: Code Generation (Agents: Heady + Dataie)**
+4. **Heady Headers**: Generate C++ header files based on Classie's analysis
+   - Input: `classes_report.md`
+   - Output: `.h` files with complete getter/setter patterns
+   - Focus: Memory management, naming conventions
+
+5. **Dataie Functions**: Generate C++ data reading functions
+   - Input: `Data_new/` files + `.h` files
+   - Output: `function.cpp` with comprehensive data loading
+   - Focus: Dynamic adaptability, error resilience
+
+**Phase 4: Model Translation (Agent: Mody)**
+6. **Mody Translation**: Translate Pyomo models to CPLEX C++ functions
+   - Input: Python optimization model + Dataie functions
+   - Output: `model.cpp` with complete optimization logic
+   - Focus: CPLEX implementation, constraint patterns
+
+**Phase 5: Integration & Performance**
+7. **C++ Implementation**: Complete C++ translation using generated components
+8. **Performance Integration**: Add CPU timing and debug control
+9. **Validation & Optimization**: Test and optimize based on performance analysis
+10. **Learning**: Record insights and update agent configurations
+
+### When Translating Models (Agent-Assisted Approach)
+1. **Invoke specialized agents**: Start with Paramy and Classie analysis
+2. **Follow agent outputs**: Use generated reports as blueprints
+3. **Leverage generated components**: Use `.h` files, data functions, model functions
+4. **Integrate performance features**: Add timing and debug controls
+5. **Validate complete pipeline**: Ensure all components work together
+6. **Document agent performance**: Record which agents performed well
 
 ### Performance and Debugging Workflow
 1. **Development Phase**: Enable detailed debug output for validation
@@ -92,12 +135,15 @@ Node classes encapsulate optimization model entities:
 3. **Production Phase**: Comment out debug sections, keep timing summaries
 4. **Optimization Phase**: Adjust parameters via configuration files
 5. **Documentation**: Record performance insights in `learning_log.md`
+6. **Agent Performance Review**: Evaluate which agents need updates
 
 ### Learning and Updates
 - Record translation challenges in `learning_log.md`
 - Update `agent.md` when new patterns emerge
 - Store refined decision logs in `reasoning_traces/`
 - Document performance optimization strategies
+- **Agent Improvement**: Update `.claude/agents/*.md` files based on performance feedback
+- **Workflow Optimization**: Refine agent collaboration based on project experience
 
 ## Data Preparation Guidelines
 
@@ -118,6 +164,10 @@ Node classes encapsulate optimization model entities:
 - [ ] **Debug output controllable** (commented sections for production)
 - [ ] **Flexible parameter support** (configuration-driven scalability)
 - [ ] **Memory management complete** (proper init/delArr patterns)
+- [ ] **Agent workflow followed**: All 6 specialized agents properly invoked
+- [ ] **Generated components integrated**: .h files, function.cpp, model.cpp used
+- [ ] **Data conversion validated**: Data_new/ files compatible with C++ reading
+- [ ] **Agent outputs reviewed**: parameter_report.md, classes_report.md checked
 
 ## Important Constraints
 
@@ -159,3 +209,11 @@ double executionTime = double(endTime - startTime) / CLOCKS_PER_SEC;
 - Use central configuration files (data.txt) for parameter control
 - Support variable data sizes for scalability testing
 - Enable different execution modes without code changes
+
+### Agent-Driven Development Best Practices
+- **Sequential agent invocation**: Follow Paramy→Classie→Convertd→Heady→Dataie→Mody order
+- **Output dependency management**: Each agent's output is the next agent's input
+- **Quality gate validation**: Validate each agent's output before proceeding
+- **Performance feedback loop**: Record agent performance for future improvements
+- **Template adherence**: Follow agent-specific templates and patterns
+- **Error handling**: Each agent should handle errors gracefully and provide meaningful feedback
