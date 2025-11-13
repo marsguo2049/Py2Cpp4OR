@@ -73,17 +73,20 @@ model.add(IloMinimize(env, objective_expr));
 
 1. **Paramy** (orange): Analyze Python files for hard-coded values → `parameter_report.md`
 2. **Classie** (purple): Identify entity classes and attributes → `classes_report.md`
-3. **Converter** (purple): Convert Python data to C++-compatible formats → `data files`
+3. **Convertd** (teal): Convert Python data to C++-compatible formats → `Data_new/ files`
 4. **Heady** (blue): Generate header files based on Classie's analysis → `.h files`
-5. **Mody** (green): Translate Pyomo models to CPLEX C++ functions → `model.cpp`
-6. **Implementation**: Complete C++ translation using generated components
+5. **Dataie** (green): Generate C++ data reading functions → `function.cpp`
+6. **Mody** (green): Translate Pyomo models to CPLEX C++ functions → `model.cpp`
+7. **Implementation**: Complete C++ translation using generated components
 
 ## Workflow
 1. Analyze Python model with Paramy + Classie
-2. Convert data formats with Converter
-3. Generate headers with Heady, model logic with Mody
-4. Complete C++ implementation
-5. Validate compilation and logic
+2. Convert data formats with Convertd
+3. Generate headers with Heady
+4. Generate data reading functions with Dataie
+5. Generate model logic with Mody
+6. Complete C++ implementation
+7. Validate compilation and logic
 
 ## Output Checklist
 - [ ] Only .cpp/.h files generated
@@ -217,16 +220,22 @@ node[i].getCapacity();      // i identifies which node
 - Classifies scalar vs array members
 - Output: `classes_report.md`
 
-**Converter** (purple) - Data Format Conversion:
-- Analyzes C++ code reading patterns before designing formats
-- Converts Python data to C++-compatible formats (TXT/matrix/CSV)
-- Ensures generated files work with existing `getData()` functions
-- Output: Compatible data files for C++ integration
+**Convertd** (teal) - Data Format Conversion:
+- Converts Python data structures to C++-compatible file formats
+- Emphasizes dynamic import and live data extraction (no hard-coding)
+- Provides universal file organization strategy and conversion templates
+- Output: `Data_new/` folder with C++-compatible files
 
 **Heady** (blue) - Header Generation:
 - Generates .h files based on Classie's analysis
 - Applies user preference naming conventions
 - Creates complete getter/setter patterns with memory management
+
+**Dataie** (green) - Data Reading Functions:
+- Generates C++ data reading functions for optimization models
+- Provides dynamic network indexing and error-resilient reading patterns
+- Ensures compatibility with converted data files and existing class structures
+- Output: `function.cpp` with comprehensive data loading
 
 **Mody** (green) - Model Translation:
 - Translates Pyomo optimization models to CPLEX C++ functions
@@ -242,23 +251,29 @@ graph LR
     B --> D[parameter_report.md]
     C --> E[classes_report.md]
     E --> F[Heady Headers]
-    F --> G[Ready Functions]
-    D --> G
-    G --> H[C++ Implementation]
+    D --> G[Convertd Data Conversion]
+    G --> H[Dataie Reading Functions]
+    F --> H
+    H --> I[Ready Functions]
+    I --> J[C++ Implementation]
+    I --> K[Mody Model Translation]
+    K --> J
 ```
 
 ### Agent Communication Flow
 - **Paramy**: Python file → Data organization strategy (no specific values)
 - **Classie**: Python structure → Entity class definitions with scalar/array classification
-- **Converter**: Python + C++ analysis → Compatible data files
+- **Convertd**: Python data structures → C++-compatible files with dynamic extraction
 - **Heady**: Classie report → Clean .h files with proper memory management
-- **Mody**: Pyomo model → CPLEX C++ implementation
+- **Dataie**: Convertd files + Heady classes → Robust data reading functions
+- **Mody**: Pyomo model + Dataie functions → CPLEX C++ implementation
 
 ### Quality Assurance
 - **Paramy**: Strategy-focused, no value disclosure
 - **Classie**: ≥2 attributes per class, logical entity types
-- **Converter**: C++ compatibility first, format analysis before design
+- **Convertd**: Dynamic extraction, universal templates, no hard-coding
 - **Heady**: Header guards, complete getters/setters, memory safety
+- **Dataie**: Dynamic adaptability, error resilience, integration simplicity
 - **Mody**: Learned patterns applied, complete memory management
 
 ## Learning & References
