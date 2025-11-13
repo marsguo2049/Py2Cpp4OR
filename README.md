@@ -60,8 +60,12 @@ agent.md → 执行 | Execute → reasoning_traces/ → 反馈 | Feedback → le
 ├── USER_GUIDE.md         # 用户数据准备指南 | User data preparation guide
 ├── CLAUDE.md             # Claude Code使用指导 | Claude Code usage guidance
 ├── .claude/agents/       # 专门化Agent配置 | Specialized agent configurations
+│   ├── paramy.md         # 参数分析专家Agent (orange/Sonnet) | Parameter analysis expert agent
 │   ├── classie.md        # 类分析专家Agent (purple/Sonnet) | Class analysis expert agent
-│   └── heady.md          # 代码生成专家Agent (blue/Sonnet) | Code generation expert agent
+│   ├── convertd.md       # 数据转换专家Agent (teal/Sonnet) | Data conversion expert agent
+│   ├── heady.md          # 代码生成专家Agent (blue/Sonnet) | Code generation expert agent
+│   ├── dataie.md         # 数据读取专家Agent (green/Sonnet) | Data reading expert agent
+│   └── mody.md           # 模型翻译专家Agent (green/Sonnet) | Model translation expert agent
 ├── examples/             # Python-C++翻译对照 | Python-C++ translation pairs
 ├── tests/                # 验证案例 | Validation cases
 └── *.h                   # 生成的C++头文件 | Generated C++ header files
@@ -72,10 +76,11 @@ agent.md → 执行 | Execute → reasoning_traces/ → 反馈 | Feedback → le
 ### ✅ 完成的里程碑 | Completed Milestones
 
 **智能Agent系统 | Intelligent Agent System:**
-- ✅ **专门化Agent团队**: 部署分析师(Classie/purple)和代码生成师(Heady/blue)的协作 | Specialized Agent Team: Deploy collaboration between analyst (Classie/purple) and code generator (Heady/blue)
-- ✅ **Agent配置**: 完整的Agent配置文件，指定模型(Sonnet)、功能和颜色标识 | Agent Configuration: Complete agent configuration files specifying model (Sonnet), functions, and color identifiers
-- ✅ **职责分离**: 分析专注于实体识别，生成专注于代码实现 | Responsibility Separation: Analysis focuses on entity identification, generation focuses on code implementation
-- ✅ **结构化工作流**: 从Python模型到C++头文件的完整自动化流程 | Structured Workflow: Complete automated workflow from Python models to C++ header files
+- ✅ **完整Agent生态系统**: 6个专门化Agent覆盖从分析到实现的全流程 | Complete Agent Ecosystem: 6 specialized agents covering the full pipeline from analysis to implementation
+- ✅ **Agent协作工作流**: Paramy→Classie→Convertd→Heady→Dataie→Mody的结构化协作 | Agent Collaboration Workflow: Structured collaboration Paramy→Classie→Convertd→Heady→Dataie→Mody
+- ✅ **专门化配置**: 每个Agent都有明确的职责、输入输出和质量标准 | Specialized Configuration: Each agent has clear responsibilities, inputs/outputs, and quality standards
+- ✅ **动态数据支持**: 支持实时数据提取和灵活配置的网络模型 | Dynamic Data Support: Real-time data extraction and flexible network configuration
+- ✅ **端到端自动化**: 从Python模型分析到C++优化代码生成的完整流程 | End-to-End Automation: Complete pipeline from Python model analysis to C++ optimization code generation
 
 **性能监控和调试系统 | Performance Monitoring & Debugging System:**
 - ✅ **CPU计时功能**: 集成`clock()`计时器，支持详细的性能分析 | CPU Timing: Integrated `clock()` timers supporting detailed performance analysis
@@ -124,50 +129,82 @@ agent.md → 执行 | Execute → reasoning_traces/ → 反馈 | Feedback → le
 
 ```mermaid
 graph LR
-    A[Python模型<br/>Python Model] --> B[classie分析<br/>classie Analysis]
-    B --> C[classes_report.md]
-    C --> D[.h头文件生成<br/>.h Header Generation]
-    D --> E[C++完整翻译<br/>C++ Complete Translation]
-    E --> F[.cpp实现<br/>.cpp Implementation]
-    F --> G[性能监控集成<br/>Performance Monitoring]
-    G --> H[验证与优化<br/>Validation & Optimization]
-    H --> I[学习与改进<br/>Learning & Improvement]
-    I --> A
+    A[Python模型<br/>Python Model] --> B[paramy分析<br/>paramy Analysis]
+    A --> C[classie分析<br/>classie Analysis]
+    B --> D[parameter_report.md]
+    C --> E[classes_report.md]
+    E --> F[.h头文件生成<br/>.h Header Generation]
+    D --> G[convertd数据转换<br/>convertd Data Conversion]
+    G --> H[Data_new/文件<br/>Data_new/ Files]
+    F --> I[dataie函数生成<br/>dataie Function Generation]
+    H --> I
+    I --> J[.cpp实现<br/>.cpp Implementation]
+    J --> K[mody模型翻译<br/>mody Model Translation]
+    K --> L[C++优化代码<br/>C++ Optimization Code]
+    L --> M[性能监控集成<br/>Performance Monitoring]
+    M --> N[验证与优化<br/>Validation & Optimization]
+    N --> O[学习与改进<br/>Learning & Improvement]
+    O --> A
 ```
 
-1. **模型分析 | Model Analysis**: classie agent分析Python模型，识别实体类 | classie agent analyzes Python models to identify entity classes
-2. **报告生成 | Report Generation**: 生成详细的classes_report.md分析报告 | Generate detailed classes_report.md analysis reports
-3. **头文件创建 | Header Creation**: 基于分析自动生成完整的.h文件 | Automatically generate complete .h files based on analysis
-4. **C++翻译 | C++ Translation**: 使用生成的头文件完成完整的C++实现 | Use generated headers to complete C++ implementation
-5. **性能监控集成 | Performance Monitoring**: 集成CPU计时和调试控制功能 | Integrate CPU timing and debug control features
-6. **验证与优化 | Validation & Optimization**: 基于性能分析进行代码优化 | Optimize code based on performance analysis
-7. **记录与学习 | Record & Learn**: 记录关键决策和性能洞察，提炼最佳实践 | Record key decisions and performance insights, distill best practices
-8. **持续改进 | Continuous Improvement**: 基于反馈优化agent能力和工具链 | Optimize agent capabilities and toolchain based on feedback
+1. **参数分析 | Parameter Analysis**: paramy agent分析Python文件中的硬编码值和数据源 | paramy agent analyzes hard-coded values and data sources in Python files
+2. **实体分析 | Entity Analysis**: classie agent分析Python模型，识别实体类和属性关系 | classie agent analyzes Python models to identify entity classes and attribute relationships
+3. **数据转换 | Data Conversion**: convertd agent将Python数据结构转换为C++兼容格式 | convertd agent converts Python data structures to C++-compatible formats
+4. **头文件生成 | Header Generation**: heady agent基于分析生成完整的.h文件 | heady agent generates complete .h files based on analysis
+5. **函数生成 | Function Generation**: dataie agent生成C++数据读取函数 | dataie agent generates C++ data reading functions
+6. **模型翻译 | Model Translation**: mody agent翻译Pyomo模型为CPLEX C++代码 | mody agent translates Pyomo models to CPLEX C++ code
+7. **C++实现 | C++ Implementation**: 使用生成的组件完成完整的C++实现 | Use generated components to complete C++ implementation
+8. **性能监控集成 | Performance Monitoring**: 集成CPU计时和调试控制功能 | Integrate CPU timing and debug control features
+9. **验证与优化 | Validation & Optimization**: 基于性能分析进行代码优化 | Optimize code based on performance analysis
+10. **记录与学习 | Record & Learn**: 记录关键决策和性能洞察，提炼最佳实践 | Record key decisions and performance insights, distill best practices
 
 ### Agent协作机制 | Agent Collaboration
 
 **主Agent (agent.md) | Main Agent (agent.md)**:
 - 负责整体翻译策略和C++代码生成 | Responsible for overall translation strategy and C++ code generation
-- 协调Classie和Heady的工作流程 | Coordinate Classie and Heady workflows
+- 协调6个专门化Agent的工作流程 | Coordinate 6 specialized agents' workflows
 - 维护项目编码标准和最佳实践 | Maintain project coding standards and best practices
 
-**Classie Agent (分析师 - purple/Sonnet) | Classie Agent (Analyst - purple/Sonnet)**:
+**专门化Agent团队 | Specialized Agent Team**:
+
+**Paramy Agent (参数分析师 - orange/Sonnet) | Paramy Agent (Parameter Analyst - orange/Sonnet)**:
+- 分析Python文件中的硬编码值和外部数据源 | Analyze hard-coded values and external data sources in Python files
+- 推荐文件组织策略(TXT vs CSV) | Recommend file organization strategy (TXT vs CSV)
+- 生成`parameter_report.md`参数分析报告 | Generate `parameter_report.md` analysis reports
+
+**Classie Agent (实体分析师 - purple/Sonnet) | Classie Agent (Entity Analyst - purple/Sonnet)**:
 - 专门负责Python模型的结构分析 | Specialized in Python model structural analysis
 - 识别实体类型和属性关系 | Identify entity types and attribute relationships
 - 生成结构化的`classes_report.md`分析报告 | Generate structured `classes_report.md` analysis reports
-- 应用验证规则确保类的逻辑性 | Apply validation rules to ensure class logicality
+
+**Convertd Agent (数据转换师 - teal/Sonnet) | Convertd Agent (Data Converter - teal/Sonnet)**:
+- 将Python数据结构转换为C++兼容格式 | Convert Python data structures to C++-compatible formats
+- 强调动态导入和实时数据提取 | Emphasize dynamic import and live data extraction
+- 生成`Data_new/`文件夹中的C++兼容文件 | Generate C++-compatible files in `Data_new/` folder
 
 **Heady Agent (代码生成师 - blue/Sonnet) | Heady Agent (Code Generator - blue/Sonnet)**:
 - 专门负责C++头文件(.h)的生成 | Specialized in C++ header file (.h) generation
 - 应用项目编码标准和模板 | Apply project coding standards and templates
 - 确保内存安全和代码质量 | Ensure memory safety and code quality
-- 生成完整的getter/setter模式 | Generate complete getter/setter patterns
+
+**Dataie Agent (数据读取专家 - green/Sonnet) | Dataie Agent (Data Reading Expert - green/Sonnet)**:
+- 生成C++数据读取函数 | Generate C++ data reading functions
+- 提供动态网络索引和错误弹性 | Provide dynamic network indexing and error resilience
+- 确保与转换数据文件的兼容性 | Ensure compatibility with converted data files
+
+**Mody Agent (模型翻译师 - green/Sonnet) | Mody Agent (Model Translator - green/Sonnet)**:
+- 翻译Pyomo优化模型为CPLEX C++代码 | Translate Pyomo optimization models to CPLEX C++ code
+- 应用学习的C++实现模式 | Apply learned C++ implementation patterns
+- 生成完整的优化逻辑和约束 | Generate complete optimization logic and constraints
 
 **协作接口 | Collaboration Interface**:
-- **Classie → Heady**: 通过`classes_report.md`传递分析结果 | Pass analysis results through `classes_report.md`
-- **Heady → 主Agent**: 生成标准化的.h文件供C++实现使用 | Generate standardized .h files for C++ implementation
-- **质量保证**: 各Agent都有独立的验证清单 | Quality Assurance: Each agent has independent validation checklists
-- **持续改进**: 通过反馈循环优化各Agent能力 | Continuous Improvement: Optimize agent capabilities through feedback loops
+- **Paramy → Convertd**: 通过`parameter_report.md`传递数据组织策略 | Pass data organization strategy through `parameter_report.md`
+- **Classie → Heady**: 通过`classes_report.md`传递实体分析结果 | Pass entity analysis results through `classes_report.md`
+- **Convertd → Dataie**: 提供`Data_new/`转换后的数据文件 | Provide converted data files in `Data_new/`
+- **Heady → Dataie**: 生成标准化.h文件供数据读取函数使用 | Generate standardized .h files for data reading functions
+- **Dataie → Mody**: 提供完整的数据加载函数供模型使用 | Provide complete data loading functions for model use
+- **质量保证**: 各Agent都有独立的验证清单和输出标准 | Quality Assurance: Each agent has independent validation checklists and output standards
+- **持续改进**: 通过反馈循环优化各Agent能力和协作效率 | Continuous Improvement: Optimize agent capabilities and collaboration efficiency through feedback loops
 
 ## 设计理念 | Philosophy
 
