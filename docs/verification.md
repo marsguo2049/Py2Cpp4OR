@@ -50,6 +50,8 @@ After the same-solver path passes, compare other backend combinations such as Py
 
 Expected sources of benign variation include presolve, tolerances, solution pools, tie-breaking, and multiple optimal solutions. The comparison should focus on status, feasibility, objective, bound, and declared invariants rather than demanding identical raw solution vectors without a uniqueness argument.
 
+A **cross-solver verified** claim must publish the corresponding comparison results, backend names and versions, complete relevant backend configuration, normalized status/comparison policy, gap definition, and numeric tolerances. Same-solver evidence cannot be relabeled as cross-solver evidence, and an undocumented spot check is not a verified claim.
+
 ### 4. Algorithm verification
 
 Verify metaheuristics only after the mathematical model and any decoder have passed their relevant checks.
@@ -65,6 +67,23 @@ For corresponding Python and C++ implementations, define:
 - termination reason and work counters.
 
 Fixed-time benchmarks come last because wall-clock runs do not guarantee equal search effort.
+
+### Hybrid GA differential verification
+
+For every exact-subproblem call compared between Python and C++, align and record:
+
+- the complete subproblem input produced by the chromosome or decoder;
+- solver backend and all relevant solver settings;
+- the per-call work budget and resulting work counters;
+- raw and normalized status, incumbent/objective, best bound, normalized gap, runtime, and `proven_optimal`.
+
+Use at least one of the following controlled oracles:
+
+1. a small synthetic subproblem solved to proven optimality;
+2. a deterministic mock or cached oracle that returns the same structured result for the same input;
+3. solver runs aligned by a comparable deterministic work limit, such as nodes or another backend-supported work counter.
+
+Equal wall-clock limits alone are not sufficient for differential equivalence because machines, APIs, and backend overhead may consume different amounts of search work. A limit-with-incumbent result may be compared as an approximate result under the declared policy, but it must not be recorded as exact or proven optimal.
 
 ## Numeric comparison policy
 
@@ -135,3 +154,5 @@ Reports should include hardware, software versions, build type, solver settings,
 - tolerance policy;
 - reproducible commands;
 - documented limitations.
+
+For Hybrid GA, this evidence must also include the per-call alignment and controlled-oracle strategy above. For a cross-solver claim, it must include the cross-solver results, backend configuration, normalized comparison policy, and tolerances.

@@ -74,6 +74,32 @@ ExactSubproblemSolver
 └── future solver adapters
 ```
 
+`ExactSubproblemSolver` names the role of a mathematical programming solver in the architecture. It does not imply that every call proves an optimal solution. A call stopped by a time, node, iteration, memory, or other work limit may return an incumbent without an optimality proof.
+
+Every call must return a structured result with fields for:
+
+- the backend's unmodified `raw_status` and a documented `normalized_status`;
+- an optional incumbent and its optional objective value;
+- the best bound, represented as unavailable when the backend cannot provide one;
+- a normalized gap, represented as unavailable when it is not defined, together with the documented normalization formula and sense convention;
+- runtime;
+- the requested work budget and the work counters actually consumed;
+- a Boolean `proven_optimal` flag that is true only when the backend has supplied a valid optimality proof under the recorded configuration.
+
+The result contract must define the following effects on GA fitness and acceptance:
+
+| Normalized status | Required GA behavior |
+|---|---|
+| `optimal` | Requires a feasible incumbent and `proven_optimal = true`; its objective may be used as certified subproblem fitness and for acceptance. |
+| `limit-with-incumbent` | Requires `proven_optimal = false`; the incumbent objective may be used only under an explicit approximate-fitness policy, and acceptance must not describe it as certified or optimal. |
+| `limit-without-incumbent` | Supplies no finite subproblem fitness; the candidate is rejected, left unevaluated, or handled by an explicitly documented fallback policy. |
+| `infeasible` | Supplies infeasible fitness according to the documented penalty or rejection policy; it must not be treated as a solver failure. |
+| `unbounded` | Supplies no finite fitness; reject the candidate or stop with a model-contract error according to the documented problem policy. |
+| `numeric failure` | Must not be accepted or mislabeled infeasible; record the failure and apply only a documented retry, fallback, or abort policy. |
+| `error` | Must not be accepted; preserve diagnostics and apply the documented propagation or abort policy. |
+
+A time-limited incumbent must never be called an “exact solution” or an “optimal solution.” The word “exact” describes the mathematical-programming solver role, not the proof status of an individual call.
+
 Commercial solver support must remain optional so that the public core can be inspected and tested without a commercial license.
 
 ### VND and GVNS
