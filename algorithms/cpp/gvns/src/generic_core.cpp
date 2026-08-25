@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iomanip>
+#include <locale>
 #include <sstream>
 #include <utility>
 
@@ -113,8 +114,9 @@ std::vector<std::string> VectorTraceObserver::golden_trace() const {
 
 std::string format_trace_event(const TraceEvent& event) {
     std::ostringstream output;
+    output.imbue(std::locale::classic());
     output << event.sequence << '|' << to_string(event.kind) << '|'
-           << event.profile_id << '|'
+           << event.run_id << '|'
            << (event.neighborhood_id.empty() ? "-" : event.neighborhood_id)
            << '|';
     if (event.status) {
@@ -130,7 +132,8 @@ std::string format_trace_event(const TraceEvent& event) {
     return output.str();
 }
 
-StrictImprovementAcceptance::StrictImprovementAcceptance(const double tolerance)
+StrictMinimizationAcceptance::StrictMinimizationAcceptance(
+    const double tolerance)
     : tolerance_{tolerance} {
     if (!std::isfinite(tolerance_) || tolerance_ < 0.0) {
         throw std::invalid_argument{
@@ -138,7 +141,7 @@ StrictImprovementAcceptance::StrictImprovementAcceptance(const double tolerance)
     }
 }
 
-bool StrictImprovementAcceptance::accepts(
+bool StrictMinimizationAcceptance::accepts(
     const double incumbent_objective, const double candidate_objective) const {
     if (!std::isfinite(incumbent_objective) ||
         !std::isfinite(candidate_objective)) {
@@ -148,20 +151,21 @@ bool StrictImprovementAcceptance::accepts(
 }
 
 SequentialNeighborhoodChange::SequentialNeighborhoodChange(
-    std::vector<int> strengths)
-    : strengths_{std::move(strengths)} {
-    if (strengths_.empty()) {
-        throw std::invalid_argument{"shake strengths must not be empty"};
+    std::vector<int> levels)
+    : levels_{std::move(levels)} {
+    if (levels_.empty()) {
+        throw std::invalid_argument{"neighborhood levels must not be empty"};
     }
-    for (const int strength : strengths_) {
-        if (strength <= 0) {
-            throw std::invalid_argument{"shake strengths must be positive"};
+    for (const int level : levels_) {
+        if (level <= 0) {
+            throw std::invalid_argument{
+                "neighborhood levels must be positive"};
         }
     }
 }
 
-int SequentialNeighborhoodChange::current_strength() const noexcept {
-    return strengths_[position_];
+int SequentialNeighborhoodChange::current_level() const noexcept {
+    return levels_[position_];
 }
 
 std::size_t SequentialNeighborhoodChange::completed_cycles() const noexcept {
@@ -170,7 +174,7 @@ std::size_t SequentialNeighborhoodChange::completed_cycles() const noexcept {
 
 void SequentialNeighborhoodChange::on_rejected() noexcept {
     ++position_;
-    if (position_ == strengths_.size()) {
+    if (position_ == levels_.size()) {
         position_ = 0U;
         ++completed_cycles_;
     }

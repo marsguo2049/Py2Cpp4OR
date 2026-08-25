@@ -76,12 +76,14 @@ Still planned:
 Available now:
 
 - minimal CMake and CTest integration for the license-free C++14 GVNS
-  foundation.
+  foundation;
+- minimal GCC CI for CMake build and CTest.
 
 Still planned:
 
 - extend CMake and CTest as future modules become runnable;
-- add CI that runs license-free checks and clearly skips unavailable optional solvers;
+- extend CI as future license-free modules become runnable and clearly skip
+  unavailable optional solvers;
 - add fixed-work and fixed-time benchmark harnesses;
 - document public APIs and supported configurations;
 - publish versioned releases with evidence-backed status notes.

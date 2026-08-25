@@ -4,7 +4,7 @@
 
 **Py2Cpp4OR 是一个文档优先的运筹优化迁移框架，用于将 Python 数学模型和元启发式算法可靠地迁移到 C++，并通过明确的跨语言验证保证一致性。**
 
-> **Project status / 项目状态:** Phase 0 documentation is complete. The repository now also contains an **experimental C++14 GVNS foundation/API draft** with synthetic toy tests and CMake support. It is a prototype, not a complete GVNS library. Model translators, solver adapters, GA/Hybrid GA implementations, benchmarks, and CI remain roadmap items.
+> **Project status / 项目状态:** Phase 0 documentation is complete. The repository now also contains an **experimental C++14 GVNS foundation/API draft** with synthetic toy tests, CMake support, and a minimal GCC CI check. It is a prototype, not a complete GVNS library. Model translators, solver adapters, GA/Hybrid GA implementations, benchmarks, and broader CI remain roadmap items.
 
 ## Why this project exists / 为什么需要它
 
@@ -73,6 +73,7 @@ Py2Cpp4OR/
 ├── README.md
 ├── LICENSE
 ├── CMakeLists.txt
+├── .github/workflows/      # minimal license-free C++ CI
 ├── docs/
 ├── model_migration/       # future
 ├── algorithms/

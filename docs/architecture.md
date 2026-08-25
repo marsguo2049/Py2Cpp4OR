@@ -114,9 +114,10 @@ The generic core may coordinate shaking, local search or VND, neighborhood chang
 
 ```text
 Py2Cpp4OR/
+├── .github/workflows/      # minimal C++ foundation CI
 ├── docs/
 ├── model_migration/         # future
-├── algorithms/              # future
+├── algorithms/              # C++ GVNS foundation present; others future
 │   ├── python/
 │   │   ├── ga/
 │   │   ├── hybrid_ga/
@@ -127,13 +128,14 @@ Py2Cpp4OR/
 │       └── gvns/
 ├── solver_adapters/         # future
 ├── examples/                # future; synthetic only
-├── tests/                   # future
+├── tests/                   # synthetic C++ GVNS tests present; others future
 └── benchmarks/              # future
 ```
 
 The current repository creates the `docs/` portion plus
-`algorithms/cpp/gvns/`, its synthetic tests, and a minimal CMake build. Other
-implementation directories in this layout remain planned.
+`algorithms/cpp/gvns/`, its synthetic tests, a minimal CMake build, and a GCC
+workflow for that build. Other implementation directories in this layout remain
+planned.
 
 ## Dependency direction
 

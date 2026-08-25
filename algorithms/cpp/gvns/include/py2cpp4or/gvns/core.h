@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -19,24 +20,24 @@ template <typename Value>
 class OptionalValue {
 public:
     OptionalValue() = default;
-    OptionalValue(Value value) : present_{true}, value_{std::move(value)} {}
+    OptionalValue(Value value)
+        : value_{std::make_shared<Value>(std::move(value))} {}
 
     PY2CPP4OR_NODISCARD explicit operator bool() const noexcept {
-        return present_;
+        return static_cast<bool>(value_);
     }
 
     PY2CPP4OR_NODISCARD const Value& value() const {
-        if (!present_) {
+        if (!value_) {
             throw std::logic_error{"optional value is not set"};
         }
-        return value_;
+        return *value_;
     }
 
     PY2CPP4OR_NODISCARD const Value& operator*() const { return value(); }
 
 private:
-    bool present_{};
-    Value value_{};
+    std::shared_ptr<const Value> value_;
 };
 
 enum class NeighborhoodStatus {
@@ -67,14 +68,21 @@ PY2CPP4OR_NODISCARD const char* to_string(TraceEventKind kind) noexcept;
 class Clock {
 public:
     virtual ~Clock() = default;
+    // Values must be monotonic for an object's lifetime. The application owns
+    // the tick unit; all deadlines used with this object must use that unit.
     PY2CPP4OR_NODISCARD virtual std::uint64_t now_ticks() const noexcept = 0;
 };
 
 class RandomSource {
 public:
     virtual ~RandomSource() = default;
+    // next_u64 may return any value in [0, UINT64_MAX]. uniform_index must
+    // return a value in [0, upper_exclusive) and throw std::invalid_argument
+    // for a zero bound.
     virtual std::uint64_t next_u64() = 0;
     virtual std::size_t uniform_index(std::size_t upper_exclusive) = 0;
+    // A non-decreasing lifetime count of primitive 64-bit draws, including
+    // draws used by uniform_index. VndEngine does not reset or normalize it.
     PY2CPP4OR_NODISCARD virtual std::size_t draws_consumed()
         const noexcept = 0;
 };
@@ -126,8 +134,9 @@ private:
     std::string reason_;
 };
 
-// Deadline contract: VndEngine checks before each neighborhood call. A call
-// started before the deadline is atomic and may finish; its completed outcome
+// deadline_ticks is an absolute Clock::now_ticks() value, in the same unit.
+// VndEngine stops when now_ticks() >= deadline_ticks before a neighborhood
+// call. A call started earlier is atomic and may finish; its completed outcome
 // is processed, then no later call may start. A neighborhood that checks the
 // policy during its call must return INTERRUPTED, never EXHAUSTED.
 
@@ -149,13 +158,13 @@ private:
 struct TraceEvent {
     std::size_t sequence{};
     TraceEventKind kind{TraceEventKind::neighborhood_result};
-    std::string profile_id;
+    std::string run_id;
     std::string neighborhood_id;
     OptionalValue<NeighborhoodStatus> status;
     double objective_before{};
     double objective_after{};
     bool accepted{};
-    std::size_t work_units{};
+    std::size_t work_units{};  // Cumulative SearchProgress::work_units.
     std::size_t rng_draws{};
     std::uint64_t clock_ticks{};
     std::string detail;
@@ -164,6 +173,8 @@ struct TraceEvent {
 class Observer {
 public:
     virtual ~Observer() = default;
+    // Called synchronously with a borrowed event. Exceptions propagate from
+    // VndEngine::run; no rollback or terminal event is attempted.
     virtual void on_event(const TraceEvent& event) = 0;
 };
 
@@ -185,9 +196,9 @@ private:
 
 PY2CPP4OR_NODISCARD std::string format_trace_event(const TraceEvent& event);
 
-class StrictImprovementAcceptance {
+class StrictMinimizationAcceptance {
 public:
-    explicit StrictImprovementAcceptance(double tolerance);
+    explicit StrictMinimizationAcceptance(double tolerance);
 
     PY2CPP4OR_NODISCARD bool accepts(
         double incumbent_objective, double candidate_objective) const;
@@ -198,20 +209,21 @@ private:
 
 class SequentialNeighborhoodChange {
 public:
-    explicit SequentialNeighborhoodChange(std::vector<int> strengths);
+    explicit SequentialNeighborhoodChange(std::vector<int> levels);
 
-    PY2CPP4OR_NODISCARD int current_strength() const noexcept;
+    PY2CPP4OR_NODISCARD int current_level() const noexcept;
     PY2CPP4OR_NODISCARD std::size_t completed_cycles() const noexcept;
     void on_rejected() noexcept;
     void on_accepted() noexcept;
 
 private:
-    std::vector<int> strengths_;
+    std::vector<int> levels_;
     std::size_t position_{};
     std::size_t completed_cycles_{};
 };
 
 struct NeighborhoodContext {
+    // All references are borrowed and valid only for the callback invocation.
     RandomSource& rng;
     const Clock& clock;
     const SearchProgress& progress;
@@ -328,7 +340,7 @@ public:
 
     VndEngine(std::vector<Neighborhood<Solution>> registry,
               Objective objective,
-              StrictImprovementAcceptance acceptance)
+              StrictMinimizationAcceptance acceptance)
         : registry_{std::move(registry)},
           objective_{std::move(objective)},
           acceptance_{std::move(acceptance)} {
@@ -342,6 +354,10 @@ public:
             if (registry_[left].id.empty()) {
                 throw std::invalid_argument{"neighborhood id must not be empty"};
             }
+            if (registry_[left].enabled && !registry_[left].search) {
+                throw std::invalid_argument{
+                    "enabled neighborhood must provide a search callback"};
+            }
             for (std::size_t right = left + 1U; right < registry_.size();
                  ++right) {
                 if (registry_[left].id == registry_[right].id) {
@@ -352,11 +368,11 @@ public:
     }
 
     PY2CPP4OR_NODISCARD SearchResult<Solution> run(
-        Solution initial, std::string profile_id, RandomSource& rng,
+        Solution initial, std::string run_id, RandomSource& rng,
         const Clock& clock, const StopPolicy& stop_policy,
         Observer& observer) const {
-        if (profile_id.empty()) {
-            throw std::invalid_argument{"profile id must not be empty"};
+        if (run_id.empty()) {
+            throw std::invalid_argument{"run id must not be empty"};
         }
 
         SearchProgress progress;
@@ -367,9 +383,9 @@ public:
 
         const auto emit_terminal = [&](const TraceEventKind kind,
                                        const std::string& detail) {
-            const double objective = objective_(incumbent);
+            const double objective = evaluate_objective(incumbent);
             observer.on_event(TraceEvent{
-                sequence, kind, profile_id, {}, {}, objective,
+                sequence, kind, run_id, {}, {}, objective,
                 objective, false, progress.work_units, rng.draws_consumed(),
                 clock.now_ticks(), detail});
         };
@@ -377,6 +393,10 @@ public:
         while (registry_position < registry_.size()) {
             const StopDecision decision = stop_policy.evaluate(progress, clock);
             if (decision.stop) {
+                if (decision.reason.empty()) {
+                    throw std::logic_error{
+                        "stopping decision must provide a reason"};
+                }
                 emit_terminal(TraceEventKind::search_stopped, decision.reason);
                 return SearchResult<Solution>{
                     std::move(incumbent), SearchTermination::interrupted, false,
@@ -385,17 +405,18 @@ public:
 
             const auto& neighborhood = registry_[registry_position];
             ++progress.registry_visits;
-            const double objective_before = objective_(incumbent);
+            const double objective_before = evaluate_objective(incumbent);
             NeighborhoodOutcome<Solution> outcome =
-                NeighborhoodOutcome<Solution>::disabled("profile-disabled");
+                NeighborhoodOutcome<Solution>::disabled("registry-disabled");
 
             if (neighborhood.enabled) {
-                if (!neighborhood.search) {
-                    throw std::logic_error{"enabled neighborhood has no search"};
-                }
                 ++progress.neighborhood_calls;
                 NeighborhoodContext context{rng, clock, progress, stop_policy};
                 outcome = neighborhood.search(incumbent, context);
+                if (outcome.status() == NeighborhoodStatus::disabled) {
+                    throw std::logic_error{
+                        "enabled neighborhood returned DISABLED"};
+                }
             }
 
             const WorkUnitSum work_sum = saturating_add_work_units(
@@ -409,9 +430,9 @@ public:
             double objective_after = objective_before;
             if (work_sum.overflowed) {
                 observer.on_event(TraceEvent{
-                    sequence++, TraceEventKind::neighborhood_result, profile_id,
+                    sequence++, TraceEventKind::neighborhood_result, run_id,
                     neighborhood.id, outcome.status(), objective_before,
-                    objective_after, false, outcome.work_units(),
+                    objective_after, false, progress.work_units,
                     rng.draws_consumed(), clock.now_ticks(), outcome.detail()});
                 emit_terminal(TraceEventKind::search_stopped,
                               "work-units-overflow");
@@ -421,7 +442,7 @@ public:
             }
             if (outcome.status() == NeighborhoodStatus::improved) {
                 Solution candidate = outcome.take_candidate();
-                objective_after = objective_(candidate);
+                objective_after = evaluate_objective(candidate);
                 if (!acceptance_.accepts(objective_before, objective_after)) {
                     throw std::logic_error{
                         "IMPROVED outcome failed strict acceptance"};
@@ -433,9 +454,9 @@ public:
                 visited_exhaustible_neighborhood = false;
             } else if (outcome.status() == NeighborhoodStatus::interrupted) {
                 observer.on_event(TraceEvent{
-                    sequence++, TraceEventKind::neighborhood_result, profile_id,
+                    sequence++, TraceEventKind::neighborhood_result, run_id,
                     neighborhood.id, outcome.status(), objective_before,
-                    objective_after, false, outcome.work_units(),
+                    objective_after, false, progress.work_units,
                     rng.draws_consumed(), clock.now_ticks(), outcome.detail()});
                 emit_terminal(TraceEventKind::search_stopped, outcome.detail());
                 return SearchResult<Solution>{
@@ -449,9 +470,9 @@ public:
             }
 
             observer.on_event(TraceEvent{
-                sequence++, TraceEventKind::neighborhood_result, profile_id,
+                sequence++, TraceEventKind::neighborhood_result, run_id,
                 neighborhood.id, outcome.status(), objective_before,
-                objective_after, accepted, outcome.work_units(),
+                objective_after, accepted, progress.work_units,
                 rng.draws_consumed(), clock.now_ticks(), outcome.detail()});
         }
 
@@ -468,9 +489,19 @@ public:
     }
 
 private:
+    PY2CPP4OR_NODISCARD double evaluate_objective(
+        const Solution& solution) const {
+        const double value = objective_(solution);
+        if (!std::isfinite(value)) {
+            throw std::invalid_argument{
+                "objective function must return a finite value"};
+        }
+        return value;
+    }
+
     std::vector<Neighborhood<Solution>> registry_;
     Objective objective_;
-    StrictImprovementAcceptance acceptance_;
+    StrictMinimizationAcceptance acceptance_;
 };
 
 }  // namespace gvns

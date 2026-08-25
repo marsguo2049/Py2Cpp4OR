@@ -62,7 +62,8 @@ The current public C++14 GVNS foundation tests only its generic orchestration
 contracts: four-state outcomes, restart after accepted improvement, stopping,
 deterministic neighborhood change, work accounting, and tracing. This is
 prototype evidence; it is not Python/C++ equivalence verification and does not
-establish a complete GVNS implementation.
+establish a complete GVNS implementation. The minimal public CI repeats its GCC
+CMake build and CTest path; MSVC remains a documented local verification step.
 
 For corresponding Python and C++ implementations, define:
 

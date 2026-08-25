@@ -17,10 +17,11 @@ Read these documents before proposing a change:
 
 The Phase 0 documentation baseline is complete. The tree also contains one
 experimental C++14 GVNS foundation/API draft with synthetic toy tests and a
-minimal CMake build. Treat it as a prototype, not a complete GVNS library.
-Model translators, solver adapters, GA/Hybrid GA implementations, benchmarks,
-and CI are not present. Do not describe any capability as present unless the
-corresponding runnable public artifact exists in the current tree.
+minimal CMake build and GCC CI check. Treat it as a prototype, not a complete
+GVNS library. Model translators, solver adapters, GA/Hybrid GA implementations,
+benchmarks, and broader CI coverage are not present. Do not describe any
+capability as present unless the corresponding runnable public artifact exists
+in the current tree.
 
 ## Non-negotiable rules
 

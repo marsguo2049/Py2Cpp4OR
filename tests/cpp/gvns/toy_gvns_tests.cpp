@@ -5,6 +5,7 @@
 #include <exception>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -20,15 +21,23 @@ using py2cpp4or::gvns::NeighborhoodContext;
 using py2cpp4or::gvns::NeighborhoodOutcome;
 using py2cpp4or::gvns::NeverStopPolicy;
 using py2cpp4or::gvns::NullObserver;
+using py2cpp4or::gvns::OptionalValue;
 using py2cpp4or::gvns::RandomSource;
 using py2cpp4or::gvns::SearchTermination;
 using py2cpp4or::gvns::SequentialNeighborhoodChange;
-using py2cpp4or::gvns::StrictImprovementAcceptance;
+using py2cpp4or::gvns::StrictMinimizationAcceptance;
 using py2cpp4or::gvns::VectorTraceObserver;
 using py2cpp4or::gvns::VndEngine;
 
 struct ToySolution {
     int score{};
+};
+
+struct NonDefaultValue {
+    explicit NonDefaultValue(const int input) : value{input} {}
+    NonDefaultValue() = delete;
+
+    int value;
 };
 
 class ToyClock final : public Clock {
@@ -122,7 +131,7 @@ void test_improvements_restart_at_n1() {
         }});
 
     VndEngine<ToySolution> engine{
-        std::move(neighborhoods), objective, StrictImprovementAcceptance{0.0}};
+        std::move(neighborhoods), objective, StrictMinimizationAcceptance{0.0}};
     const auto result = engine.run(
         ToySolution{10}, "toy-run", random, clock, stop, observer);
 
@@ -138,6 +147,15 @@ void test_improvements_restart_at_n1() {
                   "work accounting mismatch");
     require_equal(observer.events().size(), std::size_t{6},
                   "trace should contain five results and one completion");
+    std::vector<std::size_t> trace_work_units;
+    for (const auto& event : observer.events()) {
+        trace_work_units.push_back(event.work_units);
+    }
+    require_equal(trace_work_units,
+                  std::vector<std::size_t>{1U, 2U, 4U, 5U, 7U, 7U},
+                  "trace work units must be cumulative");
+    require_equal(observer.events().front().run_id, std::string{"toy-run"},
+                  "trace run id mismatch");
     require(observer.golden_trace().back().find("registry-local-optimum") !=
                 std::string::npos,
             "completion trace detail mismatch");
@@ -165,7 +183,7 @@ void test_fixed_work_stops_before_n2() {
     };
 
     VndEngine<ToySolution> engine{
-        std::move(neighborhoods), objective, StrictImprovementAcceptance{0.0}};
+        std::move(neighborhoods), objective, StrictMinimizationAcceptance{0.0}};
     const auto result = engine.run(
         ToySolution{9}, "toy-work-limit", random, clock, stop, observer);
 
@@ -192,7 +210,7 @@ void test_deadline_can_stop_before_first_call() {
     };
 
     VndEngine<ToySolution> engine{
-        std::move(neighborhoods), objective, StrictImprovementAcceptance{0.0}};
+        std::move(neighborhoods), objective, StrictMinimizationAcceptance{0.0}};
     const auto result = engine.run(
         ToySolution{4}, "toy-deadline", random, clock, stop, observer);
 
@@ -223,7 +241,7 @@ void test_interrupted_outcome_stops_without_local_optimum() {
     };
 
     VndEngine<ToySolution> engine{
-        std::move(neighborhoods), objective, StrictImprovementAcceptance{0.0}};
+        std::move(neighborhoods), objective, StrictMinimizationAcceptance{0.0}};
     const auto result = engine.run(
         ToySolution{8}, "toy-interrupted", random, clock, stop, observer);
 
@@ -251,7 +269,7 @@ void test_disabled_registry_has_explicit_termination() {
     };
 
     VndEngine<ToySolution> engine{
-        std::move(neighborhoods), objective, StrictImprovementAcceptance{0.0}};
+        std::move(neighborhoods), objective, StrictMinimizationAcceptance{0.0}};
     const auto result = engine.run(
         ToySolution{6}, "toy-disabled", random, clock, stop, observer);
 
@@ -263,27 +281,117 @@ void test_disabled_registry_has_explicit_termination() {
 }
 
 void test_acceptance_and_neighborhood_change_are_deterministic() {
-    const StrictImprovementAcceptance acceptance{0.1};
+    const StrictMinimizationAcceptance acceptance{0.1};
     require(acceptance.accepts(10.0, 9.8),
             "strictly better candidate should be accepted");
     require(!acceptance.accepts(10.0, 9.95),
             "candidate inside the tolerance should be rejected");
 
     SequentialNeighborhoodChange change{{1, 3}};
-    require_equal(change.current_strength(), 1,
+    require_equal(change.current_level(), 1,
                   "initial neighborhood level mismatch");
     change.on_rejected();
-    require_equal(change.current_strength(), 3,
+    require_equal(change.current_level(), 3,
                   "rejection should advance the neighborhood level");
     change.on_rejected();
-    require_equal(change.current_strength(), 1,
+    require_equal(change.current_level(), 1,
                   "levels should cycle deterministically");
     require_equal(change.completed_cycles(), std::size_t{1},
                   "completed cycle count mismatch");
     change.on_rejected();
     change.on_accepted();
-    require_equal(change.current_strength(), 1,
+    require_equal(change.current_level(), 1,
                   "acceptance should reset the neighborhood level");
+}
+
+void test_optional_value_supports_non_default_constructible_types() {
+    const OptionalValue<NonDefaultValue> empty;
+    require(!empty, "default optional should be empty");
+
+    const OptionalValue<NonDefaultValue> present{NonDefaultValue{17}};
+    const OptionalValue<NonDefaultValue> copied = present;
+    require(static_cast<bool>(present),
+            "constructed optional should contain a value");
+    require_equal(copied.value().value, 17,
+                  "copied optional value mismatch");
+
+    bool empty_access_rejected{};
+    try {
+        const NonDefaultValue& unexpected = empty.value();
+        static_cast<void>(unexpected);
+    } catch (const std::logic_error&) {
+        empty_access_rejected = true;
+    }
+    require(empty_access_rejected, "empty optional access must throw");
+}
+
+void test_invalid_public_contracts_fail_fast() {
+    bool missing_callback_rejected{};
+    try {
+        std::vector<Neighborhood<ToySolution>> neighborhoods{
+            Neighborhood<ToySolution>{"N1-Increment", true, {}},
+        };
+        const VndEngine<ToySolution> engine{
+            std::move(neighborhoods), objective,
+            StrictMinimizationAcceptance{0.0}};
+        static_cast<void>(engine);
+    } catch (const std::invalid_argument&) {
+        missing_callback_rejected = true;
+    }
+    require(missing_callback_rejected,
+            "enabled neighborhood without a callback must be rejected");
+
+    bool disabled_outcome_rejected{};
+    try {
+        ToyClock clock;
+        ToyRandom random{{19U}};
+        NeverStopPolicy stop;
+        NullObserver observer;
+        std::vector<Neighborhood<ToySolution>> neighborhoods{
+            Neighborhood<ToySolution>{
+                "N1-Increment", true,
+                [](const ToySolution&, NeighborhoodContext&) {
+                    return NeighborhoodOutcome<ToySolution>::disabled();
+                }},
+        };
+        const VndEngine<ToySolution> engine{
+            std::move(neighborhoods), objective,
+            StrictMinimizationAcceptance{0.0}};
+        static_cast<void>(engine.run(
+            ToySolution{1}, "toy-invalid-outcome", random, clock, stop,
+            observer));
+    } catch (const std::logic_error&) {
+        disabled_outcome_rejected = true;
+    }
+    require(disabled_outcome_rejected,
+            "enabled callback must not return disabled");
+
+    bool non_finite_objective_rejected{};
+    try {
+        ToyClock clock;
+        ToyRandom random{{23U}};
+        NeverStopPolicy stop;
+        NullObserver observer;
+        std::vector<Neighborhood<ToySolution>> neighborhoods{
+            Neighborhood<ToySolution>{
+                "N1-Increment", true,
+                [](const ToySolution&, NeighborhoodContext&) {
+                    return NeighborhoodOutcome<ToySolution>::exhausted();
+                }},
+        };
+        const VndEngine<ToySolution> engine{
+            std::move(neighborhoods),
+            [](const ToySolution&) {
+                return std::numeric_limits<double>::infinity();
+            },
+            StrictMinimizationAcceptance{0.0}};
+        static_cast<void>(engine.run(
+            ToySolution{1}, "toy-non-finite", random, clock, stop, observer));
+    } catch (const std::invalid_argument&) {
+        non_finite_objective_rejected = true;
+    }
+    require(non_finite_objective_rejected,
+            "non-finite objective must be rejected");
 }
 
 }  // namespace
@@ -301,6 +409,10 @@ int main() {
          test_disabled_registry_has_explicit_termination},
         {"acceptance_and_neighborhood_change_are_deterministic",
          test_acceptance_and_neighborhood_change_are_deterministic},
+        {"optional_value_supports_non_default_constructible_types",
+         test_optional_value_supports_non_default_constructible_types},
+        {"invalid_public_contracts_fail_fast",
+         test_invalid_public_contracts_fail_fast},
     };
 
     std::size_t passed{};

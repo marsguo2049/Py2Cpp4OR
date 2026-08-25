@@ -18,7 +18,7 @@ set_target_properties(py2cpp4or_gvns PROPERTIES
 
 if(MSVC)
     target_compile_options(py2cpp4or_gvns PRIVATE /W4 /permissive-)
-else()
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(py2cpp4or_gvns PRIVATE
         -Wall -Wextra -Wpedantic
     )
@@ -41,7 +41,7 @@ if(BUILD_TESTING)
         target_compile_options(py2cpp4or_gvns_toy_tests PRIVATE
             /W4 /permissive-
         )
-    else()
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(py2cpp4or_gvns_toy_tests PRIVATE
             -Wall -Wextra -Wpedantic
         )

@@ -8,9 +8,9 @@ Py2Cpp4OR is a documentation-first framework for migrating mathematical optimiza
 
 The Phase 0 documentation baseline is complete. The repository also contains an
 experimental C++14 GVNS foundation/API draft with synthetic toy tests and a
-minimal CMake build. It remains a prototype rather than a complete algorithm
-library. Translators, model implementations, solver adapters, GA/Hybrid GA,
-benchmarks, and CI are not present.
+minimal CMake build and GCC CI check. It remains a prototype rather than a
+complete algorithm library. Translators, model implementations, solver adapters,
+GA/Hybrid GA, benchmarks, and broader CI coverage are not present.
 
 ## Required reading
 
