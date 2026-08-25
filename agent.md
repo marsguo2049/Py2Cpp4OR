@@ -15,7 +15,13 @@ Read these documents before proposing a change:
 
 ## Current maturity
 
-The repository is a Phase 0 documentation prototype. Do not describe a model translator, algorithm implementation, solver adapter, example, test, benchmark, build system, or CI workflow as present unless the corresponding runnable public artifact exists in the current tree.
+The Phase 0 documentation baseline is complete. The tree also contains one
+experimental C++14 GVNS foundation/API draft with synthetic toy tests and a
+minimal CMake build and GCC CI check. Treat it as a prototype, not a complete
+GVNS library. Model translators, solver adapters, GA/Hybrid GA implementations,
+benchmarks, and broader CI coverage are not present. Do not describe any
+capability as present unless the corresponding runnable public artifact exists
+in the current tree.
 
 ## Non-negotiable rules
 
@@ -79,9 +85,13 @@ Do not demand identical decision vectors when multiple optima may exist. Compare
 8. For code phases, run the documented tests and report exact commands and results.
 9. Use a branch and pull request; do not merge without owner review.
 
-## Phase 0 scope
+## Phase transition scope
 
-During Phase 0, allowed changes are documentation, repository structure descriptions, and public working rules. Do not add placeholder source files, empty examples, fictional tests, CMake, or CI merely to make the repository appear more complete.
+The Phase 0 documentation-only restriction is retained as project history. New
+runnable work must be an explicitly approved roadmap increment with real source,
+synthetic tests, honest status language, and synchronized documentation. Do not
+add placeholder source files, empty examples, fictional tests, CMake, or CI
+merely to make the repository appear more complete.
 
 ## Review checklist
 

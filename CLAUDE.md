@@ -6,7 +6,11 @@ This file provides concise working guidance for Claude Code and other coding ass
 
 Py2Cpp4OR is a documentation-first framework for migrating mathematical optimization models and metaheuristics from Python to C++, with explicit cross-language verification.
 
-The current repository is at **Phase 0**. It contains documentation and repository rules only. It does not yet contain a translator, model implementations, algorithms, solver adapters, runnable examples, tests, benchmarks, CMake, or CI.
+The Phase 0 documentation baseline is complete. The repository also contains an
+experimental C++14 GVNS foundation/API draft with synthetic toy tests and a
+minimal CMake build and GCC CI check. It remains a prototype rather than a
+complete algorithm library. Translators, model implementations, solver adapters,
+GA/Hybrid GA, benchmarks, and broader CI coverage are not present.
 
 ## Required reading
 
@@ -18,10 +22,14 @@ Before changing the repository, read:
 4. `docs/verification.md` — required evidence and comparison order;
 5. `docs/roadmap.md` — current and future phase boundaries.
 
-## Phase 0 instructions
+## Phase transition instructions
 
-- Limit work to documentation, architecture descriptions, privacy boundaries, and development rules.
-- Do not create placeholder Python/C++ implementations, examples, tests, CMake, CI, or benchmark claims.
+- Keep runnable work within an explicitly approved roadmap increment.
+- The current runnable scope is the C++14 GVNS foundation and its synthetic toy
+  tests; other algorithm and model-migration implementations require separate
+  approval and pull requests.
+- Do not create placeholder Python/C++ implementations, examples, tests, CMake,
+  CI, or benchmark claims.
 - Label future directories and capabilities as planned.
 - Keep `README.md` synchronized with the current tree.
 - Use an independent branch and pull request; do not merge without owner review.
