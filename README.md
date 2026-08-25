@@ -4,7 +4,7 @@
 
 **Py2Cpp4OR 是一个文档优先的运筹优化迁移框架，用于将 Python 数学模型和元启发式算法可靠地迁移到 C++，并通过明确的跨语言验证保证一致性。**
 
-> **Project status / 项目状态:** Phase 0 documentation prototype. This repository currently contains design guidance, verification rules, privacy boundaries, and a roadmap. It does **not** yet contain a model translator, algorithm library, solver adapters, runnable examples, tests, benchmarks, CMake, or CI.
+> **Project status / 项目状态:** Phase 0 documentation is complete. The repository now also contains an **experimental C++14 GVNS foundation/API draft** with synthetic toy tests and CMake support. It is a prototype, not a complete GVNS library. Model translators, solver adapters, GA/Hybrid GA implementations, benchmarks, and CI remain roadmap items.
 
 ## Why this project exists / 为什么需要它
 
@@ -26,7 +26,9 @@ Py2Cpp4OR is being designed around three complementary tracks:
 2. **Algorithm references** — provide corresponding Python and C++ implementations of generic GA/NSGA-II, exact-solver Hybrid GA, VND, and GVNS components.
 3. **Cross-language verification** — compare structure, solver behavior, algorithm traces, feasibility, and objective values.
 
-All implementations in tracks 1–3 are roadmap items unless a future release explicitly marks them as available and provides runnable tests.
+The C++14 GVNS foundation is the only runnable algorithm prototype currently in
+the tree. All other implementations in tracks 1–3 remain roadmap items unless a
+future release explicitly marks them as available and provides runnable tests.
 
 ## Modeling layers and solver backends
 
@@ -56,26 +58,31 @@ Different optimal variable assignments are not automatically an error: multiple 
 - [Model migration](docs/model-migration.md)
 - [Verification](docs/verification.md)
 - [Privacy and publication boundaries](docs/privacy.md)
+- [C++14 GVNS foundation](algorithms/cpp/gvns/README.md)
 - [Anonymous case studies](docs/case-studies.md)
 - [Legacy v1 notes](docs/legacy-v1.md)
 - [Roadmap](docs/roadmap.md)
 
-## Planned repository structure
+## Repository structure
 
-The directories below describe the target architecture; directories that are not present in the current tree have not been implemented yet.
+The GVNS and test directories below are present. Other listed implementation
+directories remain planned and must not be inferred as available.
 
 ```text
 Py2Cpp4OR/
 ├── README.md
 ├── LICENSE
+├── CMakeLists.txt
 ├── docs/
 ├── model_migration/       # future
-├── algorithms/            # future
-│   ├── python/
+├── algorithms/
+│   ├── python/            # future
 │   └── cpp/
+│       └── gvns/          # experimental foundation/API draft
 ├── solver_adapters/       # future
 ├── examples/              # future; public toy problems only
-├── tests/                 # future
+├── tests/
+│   └── cpp/gvns/          # synthetic foundation tests
 └── benchmarks/            # future
 ```
 
@@ -87,7 +94,11 @@ See [docs/privacy.md](docs/privacy.md) before contributing any example, trace, b
 
 ## Contributing today
 
-At the current phase, useful contributions are limited to improving the documentation, identifying ambiguous verification requirements, and proposing fully synthetic future test problems. Do not add placeholder implementations or claim support without executable evidence.
+Useful contributions include improving the documentation and reviewing the
+experimental C++14 GVNS foundation against fully synthetic tests. Other
+implementation tracks require separate roadmap-scoped changes. Do not add
+placeholder implementations or claim verified/supported status without the
+required executable evidence.
 
 Repository working rules are in [agent.md](agent.md) and [CLAUDE.md](CLAUDE.md).
 

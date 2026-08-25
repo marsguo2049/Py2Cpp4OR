@@ -4,7 +4,9 @@
 
 Migration is complete only when the source and target have been compared at the appropriate semantic level. Compilation and a similar objective value are necessary evidence, but neither is sufficient on its own.
 
-The checks below are requirements for future implementations. Phase 0 contains no verification tool yet.
+The checks below are requirements for current and future implementations. The
+C++14 GVNS foundation has deterministic synthetic toy tests, but no
+cross-language verifier or model-verification tool exists yet.
 
 ## Verification sequence
 
@@ -55,6 +57,12 @@ A **cross-solver verified** claim must publish the corresponding comparison resu
 ### 4. Algorithm verification
 
 Verify metaheuristics only after the mathematical model and any decoder have passed their relevant checks.
+
+The current public C++14 GVNS foundation tests only its generic orchestration
+contracts: four-state outcomes, restart after accepted improvement, stopping,
+deterministic neighborhood change, work accounting, and tracing. This is
+prototype evidence; it is not Python/C++ equivalence verification and does not
+establish a complete GVNS implementation.
 
 For corresponding Python and C++ implementations, define:
 

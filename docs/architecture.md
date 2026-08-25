@@ -2,7 +2,9 @@
 
 ## Status
 
-This document defines the intended v2 architecture. In Phase 0 it is a design contract, not a description of implemented software.
+This document defines the intended v2 architecture. Most layers remain a design
+contract. The isolated C++14 GVNS foundation is a prototype/API draft; it does
+not make the full algorithm or migration architecture implemented.
 
 ## Design principles
 
@@ -33,7 +35,9 @@ Generic algorithm core
         └── Python/C++ differential verification
 ```
 
-No component in this diagram is implemented in Phase 0.
+Only the generic C++14 GVNS orchestration foundation is currently prototyped.
+The model-migration layers, solver adapters, Python counterpart, and complete
+algorithm integrations remain planned.
 
 ## Planned model-migration layout
 
@@ -127,7 +131,9 @@ Py2Cpp4OR/
 └── benchmarks/              # future
 ```
 
-The current repository intentionally creates only the `docs/` portion of this layout.
+The current repository creates the `docs/` portion plus
+`algorithms/cpp/gvns/`, its synthetic tests, and a minimal CMake build. Other
+implementation directories in this layout remain planned.
 
 ## Dependency direction
 

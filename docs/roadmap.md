@@ -3,11 +3,13 @@
 ## Status convention
 
 - **Complete:** the stated artifact exists in the public repository and has been reviewed against its acceptance criteria.
+- **Partially prototyped:** a runnable foundation exists, but the phase's full
+  contract and verification evidence are incomplete.
 - **Planned:** no public implementation should be inferred.
 
 ## Phase 0 — v2 documentation and privacy foundation
 
-**Status:** complete in the Phase 0 documentation pull request, pending merge.
+**Status:** complete.
 
 - correct capability and maturity statements;
 - define architecture and migration boundaries;
@@ -49,9 +51,19 @@ Phase 1 is not complete until the example and checks are runnable and documented
 
 ## Phase 3 — VND and GVNS
 
-**Status:** planned.
+**Status:** partially prototyped for the C++ foundation only.
 
-- define corresponding Python and C++ VND/GVNS orchestration;
+Available now:
+
+- an experimental C++14 orchestration foundation/API draft;
+- four-state neighborhood outcomes, VND restart, sequential neighborhood
+  change, stop policies, injected RNG, observers, and traces;
+- synthetic toy tests and fixed-work checks.
+
+Still planned:
+
+- define corresponding Python orchestration and complete the C++ top-level
+  GVNS orchestration;
 - separate problem representation, decoder, feasibility, evaluation, and neighborhoods behind adapters;
 - specify shaking, local search, neighborhood change, acceptance, RNG, and stop policies;
 - add neighborhood-level golden traces and fixed-work verification;
@@ -59,9 +71,16 @@ Phase 1 is not complete until the example and checks are runnable and documented
 
 ## Phase 4 — engineering and release
 
-**Status:** planned.
+**Status:** partially prototyped for the GVNS foundation only.
 
-- add CMake and CTest for implemented code;
+Available now:
+
+- minimal CMake and CTest integration for the license-free C++14 GVNS
+  foundation.
+
+Still planned:
+
+- extend CMake and CTest as future modules become runnable;
 - add CI that runs license-free checks and clearly skips unavailable optional solvers;
 - add fixed-work and fixed-time benchmark harnesses;
 - document public APIs and supported configurations;
